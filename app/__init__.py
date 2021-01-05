@@ -1,34 +1,19 @@
-import random
-
-from flask import Flask, send_from_directory, Response, send_file
+from flask import Flask, send_from_directory
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_cache import Cache
 from flask_bootstrap import Bootstrap
-import os
 from flask_mail import Mail
 from flask_moment import Moment
 from flask_pagedown import PageDown
 from app.model.global_mem_value import GlobalInMem
-#from .database.redis_engine import redis_handle
+from .classification.keras.keras_classify_land import KerasClassifyLandslide
 from .tools.sync_tool import singleton
-
-basedirs = os.path.abspath(os.path.dirname(__file__))
-basedir = basedirs + '/cache'
-globalInMem = GlobalInMem().handleUserList()
-globalRegisterUser = globalInMem.getUserList()
-globalRegisterGroup = globalInMem.getGroupList()
-globalMissionData = globalInMem.getMissionid()
-
-webhook_baseuri = os.getenv('webhook_baseuri')
-wra_baseuri = os.getenv('wra_baseuri')
-wra_register = os.getenv('wra_register')
-image_sign_static = os.getenv('image_sign_static')
-image_register_static = os.getenv('image_register_static')
+from .tools.config import config
 
 
-@singleton
+# @singleton
 class FlaskApp:
     def __init__(self):
         self.app = Flask(__name__)
@@ -39,9 +24,12 @@ class FlaskApp:
         Mail(self.app)
         Moment(self.app)
         PageDown(self.app)
-
+        self.c = config()
+        self.keras_version_sub_folder = self.c.getkeras_version_sub_folder()
+        basedir, basedircache = self.c.getbasedircache()
+        self.keras_classify = KerasClassifyLandslide()
         self.app.config['JWT_SECRET_KEY'] = 'this-should-be-change'
-        self.cache = Cache(self.app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': basedir})
+        self.cache = Cache(self.app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': basedircache})
 
     def getApp(self):
         return self.app
@@ -49,15 +37,26 @@ class FlaskApp:
     def getCache(self):
         return self.cache
 
+    def getKerasModel(self):
+        return self.keras_classify
+
+    def getkeras_version_sub_folder(self):
+        return self.keras_version_sub_folder
+
 
 flask_app = FlaskApp()
+keras_version_sub_folder = flask_app.getkeras_version_sub_folder()
 app = flask_app.getApp()
+keras_classify = flask_app.getKerasModel()
+
+from .model.global_data import KerasGlobalInMem
+kerasglobalInMem = KerasGlobalInMem()
+
 
 
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
 
 
 from . import api

@@ -13,3 +13,6 @@ $ pip install -r requirements.txt
 $ python app.py
 ```
 $from flask_cache import make_template_fragment_key
+
+landslide_5class_v0.0.1.h5
+-20201230:chao image 
