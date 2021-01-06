@@ -7,22 +7,20 @@ from .. import flask_app
 app = flask_app.getApp()
 routerCache = flask_app.getCache()
 
-from .landslide_controller import PublicPathController,  ClassifyLandSlideController, \
-    PostImageUrlController, KerasVersionController
+from .landslide_controller import PublicPathController, UploadImageToClassifyController, \
+    UploadImageUrlToClassifyController, KerasVersionController, ClassifyErrorByPersonController
 
-
-
-app.add_url_rule('/webhooks/classify',
-                 view_func=ClassifyLandSlideController.as_view('ClassifyLandSlideController'))
+app.add_url_rule('/webhooks/postimage',
+                 view_func=UploadImageToClassifyController.as_view('ClassifyLandSlideController'))
 
 app.add_url_rule('/webhooks/public/<path:path>',
                  view_func=PublicPathController.as_view('PublicPathController'))
 
 app.add_url_rule('/webhooks/postimageurl',
-                 view_func=PostImageUrlController.as_view('PostImageUrlController'))
+                 view_func=UploadImageUrlToClassifyController.as_view('PostImageUrlController'))
 
 app.add_url_rule('/webhooks/kerasversion',
                  view_func=KerasVersionController.as_view('KerasVersionController'))
 
-
-
+app.add_url_rule('/webhooks/posterrorbyperson',
+                 view_func=ClassifyErrorByPersonController.as_view('ClassifyErrorByPersonController'))

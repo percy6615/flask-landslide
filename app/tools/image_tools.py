@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
+from PIL import ExifTags
 
 
-
-class PhashImage:
+class ImageHandle():
     def __init__(self):
         self.ddd = ''
 
@@ -54,7 +54,7 @@ class PhashImage:
         # decimal_value = 0
         hash1 = self.magic(hash1)
         hash1 = hex(int(hash1, 2))
-        return hash1
+        return hash1.rstrip()
 
     def hamming_distance(self, hash1, hash2):
         num = 0
@@ -62,3 +62,17 @@ class PhashImage:
             if hash1[index] != hash2[index]:
                 num += 1
         return num
+
+    def imageRotate(self, image):
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation] == 'Orientation':
+                break
+        if image is not None and image._getexif() is not None:
+            exif = dict(image._getexif().items())
+            if exif[orientation] == 3:
+                image = image.rotate(180, expand=True)
+            elif exif[orientation] == 6:
+                image = image.rotate(270, expand=True)
+            elif exif[orientation] == 8:
+                image = image.rotate(90, expand=True)
+        return image

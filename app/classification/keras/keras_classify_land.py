@@ -1,19 +1,18 @@
 # utf-8
 # from app import singleton
 
+import os
 from io import BytesIO
 
+import PIL
+import numpy as np
 import requests
 import tensorflow as tf
-
-from keras.models import Model
-from keras.layers import Dense, GlobalAveragePooling2D, Dropout
-from keras.applications import xception
-from keras.preprocessing import image
-import numpy as np
-import os
 from PIL import Image, ImageFile
-import PIL
+from keras.applications import xception
+from keras.layers import Dense, GlobalAveragePooling2D, Dropout
+from keras.models import Model
+from keras.preprocessing import image
 
 
 # @singleton
@@ -61,14 +60,17 @@ class KerasClassifyLandslide:
         model.load_weights(basedirs + '/keras_model/' + modelname)
         return model
 
-    def classify(self, img_path=os.path.join(os.path.dirname(__file__), "../../public/2.jpg")):
-        img = image.load_img(img_path, target_size=(299, 299))
+    def classify(self, img):
         img = image.img_to_array(img)
         img /= 255.0
         img = np.expand_dims(img, axis=0)
         result = self.keras_model.predict(img)
         result = np.argmax(result)
         return result
+
+    def classifyimagepath(self, img_path=os.path.join(os.path.dirname(__file__), "../../public/2.jpg")):
+        img = image.load_img(img_path, target_size=(299, 299))
+        return self.classify(img)
 
     def defineClassifyIntToStr(self, classnum):
         if classnum == 0:
@@ -102,16 +104,11 @@ class KerasClassifyLandslide:
 
     def classifyurl(self, url='http://127.0.0.1:8000/webhooks/public/1609729025695.png'):
         response = requests.get(url)
-        image1 = self.load_img(response)
-        img = image.img_to_array(image1)
-        img /= 255.0
-        img = np.expand_dims(img, axis=0)
-        result = self.keras_model.predict(img)
-        result = np.argmax(result)
-        return result
-
-    def load_img(self, response, color_mode='rgb', target_size=(299, 299), interpolation='nearest'):
         img = Image.open(BytesIO(response.content))
+        img = self.load_img(img)
+        return self.classify(img)
+
+    def load_img(self, img, color_mode='rgb', target_size=(299, 299), interpolation='nearest'):
         if color_mode == 'grayscale':
             if img.mode != 'L':
                 img = img.convert('L')
@@ -135,6 +132,10 @@ class KerasClassifyLandslide:
                 resample = self._PIL_INTERPOLATION_METHODS[interpolation]
                 img = img.resize(width_height_tuple, resample)
         return img
+
+    def classifyimagebytes(self, imagebytes):
+        img = self.load_img(imagebytes)
+        return self.classify(img)
 
 # k = KerasClassifyLandslide()
 # print(k.classifyurl())
