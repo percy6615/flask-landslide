@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import json
-import os
+import os, sys
 import pathlib
 # from urllib import response
 import uuid
 from io import BytesIO
 
+import dotenv
 import requests
 from PIL import Image
 from flask import request, send_from_directory
@@ -13,7 +14,7 @@ from flask.views import MethodView
 
 from app import keras_classify, keras_version_sub_folder, kerasglobalInMem
 from app.tools.image_tools import ImageHandle
-
+from pyfcm import FCMNotification
 
 def send_static_content(path):
     return send_from_directory('public', path)
@@ -28,6 +29,9 @@ class UploadImageToClassifyController(MethodView):
     def post(self):
         file = request.files['filedata']
         filedata = file.read()
+        # dotenv_file = dotenv.find_dotenv()
+        # dotenv.load_dotenv(dotenv_file)
+        # dotenv.set_key(dotenv_file, "test", 'os.environ[]')
         return KerasImageClassifyHandle().handle(filedata, None, file.filename)
 
     def get(self):
@@ -114,6 +118,25 @@ class KerasImageClassifyHandle():
         return str({"uuid": str(my_uuid), 'machineclassname': classify_imageName})
 
 
-path = './app/classification/keras/image/landslide_5class_v0.0.2.h5/2/3e4aa2074384468bb29b59a5471e68cb.jpg'
-filename = path.split(keras_version_sub_folder)[-1]
-print(filename)
+# path = './app/classification/keras/image/landslide_5class_v0.0.2.h5/2/3e4aa2074384468bb29b59a5471e68cb.jpg'
+# filename = path.split(keras_version_sub_folder)[-1]
+# print(filename)
+
+class FirebaseNotefication():
+    def __init__(self):
+        pass
+    def sendMessage(self):
+        device_id = sys.argv[1]
+        server_key = "AAAAF_CeRXo:APA91bEmQ5ZNzRR3SD2gtFjsRBzAtDWUzjgMz-xzKhA2I4g8opzD4yp-FzGagxuIbvJNmzszwhLGtP9T9o_uonUldG9dieosivpjMyTGKJYXsLueAKQf8vdCZkM5PzU_Zqjhh4J9yS3l"
+        push_service = FCMNotification(api_key=server_key)
+        registration_id = device_id
+        message_title = "PB PerfEval"
+        message_body = "test"
+
+        datamsg = {
+            "data": message_body
+        }
+        # click_action="com.precisebiometrics.perfevalmessge.TARGET_NOTIFICATION"
+        result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                   message_body=message_body, data_message=datamsg)
+        print(message_body)
