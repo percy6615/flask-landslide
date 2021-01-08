@@ -8,7 +8,8 @@ app = flask_app.getApp()
 routerCache = flask_app.getCache()
 
 from .landslide_controller import PublicPathController, UploadImageToClassifyController, \
-    UploadImageUrlToClassifyController, KerasVersionController, ClassifyErrorByPersonController
+    UploadImageUrlToClassifyController, KerasVersionController, ClassifyErrorByPersonController, \
+    GetFirebaseTokenController
 
 app.add_url_rule('/webhooks/postimage',
                  view_func=UploadImageToClassifyController.as_view('ClassifyLandSlideController'))
@@ -24,3 +25,6 @@ app.add_url_rule('/webhooks/kerasversion',
 
 app.add_url_rule('/webhooks/posterrorbyperson',
                  view_func=ClassifyErrorByPersonController.as_view('ClassifyErrorByPersonController'))
+
+app.add_url_rule('/webhooks/postfcmtoken',
+                 view_func=GetFirebaseTokenController.as_view('GetFirebaseTokenController'))

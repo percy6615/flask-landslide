@@ -34,8 +34,6 @@ class UploadImageToClassifyController(MethodView):
         # dotenv.set_key(dotenv_file, "test", 'os.environ[]')
         return KerasImageClassifyHandle().handle(filedata, None, file.filename)
 
-    def get(self):
-        pass
 
 
 class UploadImageUrlToClassifyController(MethodView):
@@ -118,15 +116,17 @@ class KerasImageClassifyHandle():
         return str({"uuid": str(my_uuid), 'machineclassname': classify_imageName})
 
 
-# path = './app/classification/keras/image/landslide_5class_v0.0.2.h5/2/3e4aa2074384468bb29b59a5471e68cb.jpg'
-# filename = path.split(keras_version_sub_folder)[-1]
-# print(filename)
+class GetFirebaseTokenController(MethodView):
+    def post(self):
+        jsondata = request.get_json()
+        print(jsondata)
+        return {'success': 200}
 
 class FirebaseNotefication():
     def __init__(self):
         pass
     def sendMessage(self):
-        device_id = sys.argv[1]
+        device_id = 'cUWHDv6gRpCLlI3MjglGBz:APA91bGfMy6UVEzAD3q81Du4hMY4seRQBmH3C_7LSNz5saKrMaVN7a-PGTT3_cpWftwAHl4kZJWlqESBLL2zzYZrgtUOcGceZZDJMYvpsMoXk1ky-xJragrV-L3azzU-hhOPy815EuoO'
         server_key = "AAAAF_CeRXo:APA91bEmQ5ZNzRR3SD2gtFjsRBzAtDWUzjgMz-xzKhA2I4g8opzD4yp-FzGagxuIbvJNmzszwhLGtP9T9o_uonUldG9dieosivpjMyTGKJYXsLueAKQf8vdCZkM5PzU_Zqjhh4J9yS3l"
         push_service = FCMNotification(api_key=server_key)
         registration_id = device_id
@@ -140,3 +140,4 @@ class FirebaseNotefication():
         result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
                                                    message_body=message_body, data_message=datamsg)
         print(message_body)
+FirebaseNotefication().sendMessage()
