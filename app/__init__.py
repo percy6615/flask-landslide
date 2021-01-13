@@ -11,7 +11,7 @@ from app.model.global_mem_value import GlobalInMem
 from .classification.keras.keras_classify_land import KerasClassifyLandslide
 from .tools.sync_tool import singleton
 from .tools.config import config
-
+import os
 
 # @singleton
 class FlaskApp:
@@ -25,7 +25,6 @@ class FlaskApp:
         Moment(self.app)
         PageDown(self.app)
         self.c = config()
-        self.keras_version_sub_folder = self.c.getkeras_version_sub_folder()
         basedir, basedircache = self.c.getbasedircache()
         self.keras_classify = KerasClassifyLandslide()
         self.app.config['JWT_SECRET_KEY'] = 'this-should-be-change'
@@ -41,7 +40,7 @@ class FlaskApp:
         return self.keras_classify
 
     def getkeras_version_sub_folder(self):
-        return self.keras_version_sub_folder
+        return self.c.getkeras_version_sub_folder()
 
 
 flask_app = FlaskApp()

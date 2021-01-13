@@ -18,6 +18,8 @@ from keras.preprocessing import image
 # @singleton
 class KerasClassifyLandslide:
     def __init__(self):
+
+
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True

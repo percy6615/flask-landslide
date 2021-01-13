@@ -21,3 +21,15 @@ def singleton(cls):
     except AttributeError:
         pass
     return cls
+
+
+def singletonAtt(cls, modelname):
+    obj = cls(modelname)
+    # Always return the same object
+    cls.__new__ = staticmethod(lambda cls: obj)
+    # Disable __init__
+    try:
+        del cls.__init__
+    except AttributeError:
+        pass
+    return cls

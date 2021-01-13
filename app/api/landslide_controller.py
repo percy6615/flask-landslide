@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 import json
-import os, sys
+import os
 import pathlib
 # from urllib import response
 import uuid
 from io import BytesIO
 
-import dotenv
 import requests
 from PIL import Image
 from flask import request, send_from_directory
 from flask.views import MethodView
+from pyfcm import FCMNotification
 
 from app import keras_classify, keras_version_sub_folder, kerasglobalInMem
 from app.tools.image_tools import ImageHandle
-from pyfcm import FCMNotification
+
+errorcount_notify = 500
+
 
 def send_static_content(path):
     return send_from_directory('public', path)
@@ -35,7 +37,6 @@ class UploadImageToClassifyController(MethodView):
         return KerasImageClassifyHandle().handle(filedata, None, file.filename)
 
 
-
 class UploadImageUrlToClassifyController(MethodView):
     def post(self):
         jsondata = request.get_json()
@@ -53,13 +54,27 @@ class ClassifyErrorByPersonController(MethodView):
         kerasfilejsondata = kerasglobalInMem.getkerasfilejsondata()
         if uuid in kerasfilejsondata:
             personclass = keras_classify.defineClassifyStrToInt(personclassname)
+            # if personclass != kerasfilejsondata[uuid]['personclass'] :
             kerasfilejsondata[uuid]['personclass'] = personclass
-            machinefilepath = kerasfilejsondata[uuid]['machinefilepath']
-            filename=machinefilepath.split('/')[-1]
-            savepath = "./app" + keras_version_sub_folder + "/" + str(personclass)+"/"+filename
-            kerasfilejsondata = json.dumps(kerasfilejsondata, ensure_ascii=False)
-            pathlib.Path("./app" + keras_version_sub_folder + "/data.json").write_text(kerasfilejsondata,
-                                                                                       encoding="utf-8")
+            filepath = kerasfilejsondata[uuid]['filepath']
+            filename = filepath.split('/')[-1]
+            savepath = "./app" + keras_version_sub_folder + "/" + str(personclass) + "/" + filename
+            kerasfilejsondata[uuid]['filepath'] = savepath
+            os.rename(filepath, savepath)
+
+            kerasfile = json.dumps(kerasfilejsondata, ensure_ascii=False)
+            pathlib.Path("./app" + keras_version_sub_folder + "/data.json").write_text(kerasfile, encoding="utf-8")
+            error_count = 0
+            total_count = len(kerasfilejsondata)
+            for kuuid in kerasfilejsondata:
+                if kerasfilejsondata[kuuid]['machineclass'] != kerasfilejsondata[kuuid]['personclass']:
+                    error_count = error_count + 1
+            if error_count >= errorcount_notify or (total_count > errorcount_notify and error_count/total_count > 0.1):
+                payload = {"message": "landslid must be retrain"}
+                headers = {'Authorization': 'Bearer ' + os.getenv("line_notify_oneoone"), }
+                r = requests.post('https://notify-api.line.me/api/notify', payload, headers=headers)
+            print(total_count)
+            print(error_count)
         return {'success': 200}
 
 
@@ -106,7 +121,7 @@ class KerasImageClassifyHandle():
             savepath = "./app" + keras_version_sub_folder + "/" + str(classify_image) + "/" + my_uuid + "." + ext
             kerasfilejsondata[my_uuid] = {'uuid': my_uuid, 'url': url, 'machineclass': int(classify_image),
                                           'personclass': int(classify_image), 'urlfilename': urlfilename,
-                                          'machinefilepath': savepath, 'personfilepath': None, 'phash': str(degree)}
+                                          'filepath': savepath, 'phash': str(degree)}
             kerasfilejsondata = json.dumps(kerasfilejsondata, ensure_ascii=False)
             pathlib.Path("./app" + keras_version_sub_folder + "/data.json").write_text(kerasfilejsondata,
                                                                                        encoding="utf-8")
@@ -122,12 +137,14 @@ class GetFirebaseTokenController(MethodView):
         print(jsondata)
         return {'success': 200}
 
+
 class FirebaseNotefication():
     def __init__(self):
         pass
+
     def sendMessage(self):
         device_id = 'cUWHDv6gRpCLlI3MjglGBz:APA91bGfMy6UVEzAD3q81Du4hMY4seRQBmH3C_7LSNz5saKrMaVN7a-PGTT3_cpWftwAHl4kZJWlqESBLL2zzYZrgtUOcGceZZDJMYvpsMoXk1ky-xJragrV-L3azzU-hhOPy815EuoO'
-        server_key = "AAAAF_CeRXo:APA91bEmQ5ZNzRR3SD2gtFjsRBzAtDWUzjgMz-xzKhA2I4g8opzD4yp-FzGagxuIbvJNmzszwhLGtP9T9o_uonUldG9dieosivpjMyTGKJYXsLueAKQf8vdCZkM5PzU_Zqjhh4J9yS3l"
+        server_key = os.getenv('firebase_landslide_serverkey')
         push_service = FCMNotification(api_key=server_key)
         registration_id = device_id
         message_title = "PB PerfEval"
@@ -140,4 +157,3 @@ class FirebaseNotefication():
         result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
                                                    message_body=message_body, data_message=datamsg)
         print(message_body)
-FirebaseNotefication().sendMessage()
