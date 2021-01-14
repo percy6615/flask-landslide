@@ -9,17 +9,16 @@ import numpy as np
 import requests
 import tensorflow as tf
 from PIL import Image, ImageFile
+from dotenv import load_dotenv
 from keras.applications import xception
 from keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from keras.models import Model
 from keras.preprocessing import image
 
-
+load_dotenv()
 # @singleton
 class KerasClassifyLandslide:
     def __init__(self):
-
-
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -41,7 +40,7 @@ class KerasClassifyLandslide:
             if hasattr(Image, 'LANCZOS'):
                 self._PIL_INTERPOLATION_METHODS['lanczos'] = Image.LANCZOS
 
-    def create_model(self, modelname=os.getenv('keras_model_version')):
+    def create_model(self, modelName=os.getenv('keras_model_version')):
         baseModel = xception.Xception(include_top=False, input_shape=(299, 299, 3))
         basedirs = os.path.abspath(os.path.dirname(__file__))
         nn_input = baseModel.input
@@ -59,7 +58,7 @@ class KerasClassifyLandslide:
         output = Dense(5, activation='softmax')(x)
         model = Model(nn_input, output)
         model.compile(optimizer='adadelta', loss='categorical_crossentropy', metrics=['accuracy'])
-        model.load_weights(basedirs + '/keras_model/' + modelname)
+        model.load_weights(basedirs + '/keras_model/' + modelName)
         return model
 
     def classify(self, img):
@@ -67,8 +66,8 @@ class KerasClassifyLandslide:
         img /= 255.0
         img = np.expand_dims(img, axis=0)
         result = self.keras_model.predict(img)
-        result = np.argmax(result)
-        return result
+        resultarg = np.argmax(result)
+        return result, resultarg
 
     def classifyimagepath(self, img_path=os.path.join(os.path.dirname(__file__), "../../public/2.jpg")):
         img = image.load_img(img_path, target_size=(299, 299))
