@@ -15,7 +15,7 @@ from pyfcm import FCMNotification
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .classification.keras.keras_classify_land import KerasClassifyLandslide
-from .tools.config import config
+from .tools.config_tools import config
 
 
 class FirebaseNotefication:

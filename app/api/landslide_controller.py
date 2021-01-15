@@ -64,30 +64,35 @@ class ClassifyErrorByPersonController(MethodView):
                 kerasfilejsondata = kerasGlobalInMem.getkerasfilejsondata()
                 if uuid in kerasfilejsondata:
                     personclass = keras_classify.defineClassifyStrToInt(personclassname)
-                    # if personclass != kerasfilejsondata[uuid]['personclass'] :
-                    kerasfilejsondata[uuid]['personclass'] = personclass
-                    filepath = kerasfilejsondata[uuid]['filepath']
-                    filename = filepath.split('/')[-1]
-                    savepath = kerasVersion_subFolder + "/" + str(personclass) + "/" + filename
-                    kerasfilejsondata[uuid]['filepath'] = savepath
-                    os.rename(filepath, savepath)
-                    kerasfile = json.dumps(kerasfilejsondata, ensure_ascii=False)
-                    pathlib.Path(kerasVersion_subFolder + "/data.json").write_text(kerasfile, encoding="utf-8")
-                    error_count = 0
-                    total_count = len(kerasfilejsondata)
-                    for kuuid in kerasfilejsondata:
-                        if kerasfilejsondata[kuuid]['machineclass'] != kerasfilejsondata[kuuid]['personclass']:
-                            error_count = error_count + 1
-                    if (error_count >= errorcount_notify) or (
-                            total_count > errorcount_notify and error_count / total_count > 0.1):
-                        payload = {"message": "landslid must be retrain"}
-                        headers = {'Authorization': 'Bearer ' + os.getenv("line_notify_oneoone"), }
-                        r = requests.post('https://notify-api.line.me/api/notify', payload, headers=headers)
-                return {'status': 200}
+                    if personclass != -1:
+                        # if personclass != kerasfilejsondata[uuid]['personclass'] :
+                        kerasfilejsondata[uuid]['personclass'] = personclass
+                        filepath = kerasfilejsondata[uuid]['filepath']
+                        filename = filepath.split('/')[-1]
+                        savepath = kerasVersion_subFolder + "/" + str(personclass) + "/" + filename
+                        kerasfilejsondata[uuid]['filepath'] = savepath
+                        os.rename(filepath, savepath)
+                        kerasfile = json.dumps(kerasfilejsondata, ensure_ascii=False)
+                        pathlib.Path(kerasVersion_subFolder + "/data.json").write_text(kerasfile, encoding="utf-8")
+                        error_count = 0
+                        total_count = len(kerasfilejsondata)
+                        for kuuid in kerasfilejsondata:
+                            if kerasfilejsondata[kuuid]['machineclass'] != kerasfilejsondata[kuuid]['personclass']:
+                                error_count = error_count + 1
+                        if (error_count >= errorcount_notify) or (
+                                total_count > errorcount_notify and error_count / total_count > 0.1):
+                            payload = {"message": "landslid must be retrain"}
+                            headers = {'Authorization': 'Bearer ' + os.getenv("line_notify_oneoone"), }
+                            r = requests.post('https://notify-api.line.me/api/notify', payload, headers=headers)
+                        return {'status': 200}
+                    else:
+                        return {'status': 401}
+                else:
+                    return {'status': 402}
             else:
-                return {'status': 400}
+                return {'status': 403}
         else:
-            return {'status': 400}
+            return {'status': 404}
 
 
 class KerasVersionController(MethodView):
@@ -142,7 +147,10 @@ class KerasImageClassifyHandle:
         my_uuid = uuid.uuid4().hex
         image = Image.open(BytesIO(content))
         image = image_handle.imageRotate(image)
-        ext = image.format.lower()
+        if image.format is None:
+            ext = urlfilename.split(".")[-1].lower()
+        else:
+            ext = image.format.lower()
         if ext == 'jpeg':
             ext = 'jpg'
 

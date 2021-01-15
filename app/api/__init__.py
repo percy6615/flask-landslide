@@ -28,4 +28,3 @@ app.add_url_rule('/webhooks/posterrorbyperson',
 
 app.add_url_rule('/webhooks/postfcmtoken',
                  view_func=GetFirebaseTokenController.as_view('GetFirebaseTokenController'))
-
