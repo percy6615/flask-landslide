@@ -16,7 +16,8 @@ from keras.models import Model
 from keras.preprocessing import image
 
 load_dotenv()
-# @singleton
+
+
 class KerasClassifyLandslide:
     def __init__(self):
         ImageFile.LOAD_TRUNCATED_IMAGES = True

@@ -23,23 +23,6 @@ class ImageHandle():
         s = ''.join(s)  # '123'
         return s
 
-    # def classify_pHash(self, imagePath):
-    #     img1 = cv2.imread(imagePath)
-    #     image1 = cv2.resize(img1, (32, 32))
-    #     gray1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
-    #     # 将灰度图转为浮点型，再进行dct变换
-    #     dct1 = cv2.dct(np.float32(gray1))
-    #     # 取左上角的8*8，这些代表图片的最低频率
-    #     # 这个操作等价于c++中利用opencv实现的掩码操作
-    #     # 在python中进行掩码操作，可以直接这样取出图像矩阵的某一部分
-    #     dct1_roi = dct1[0:8, 0:8]
-    #     hash1 = self.getHash(dct1_roi)
-    #     # print(hash1)
-    #     decimal_value = 0
-    #     hash1 = self.magic(hash1)
-    #     hash1 = hex(int(hash1, 2))
-    #     return hash1
-
     def classify_pHash(self, img1):
         gray1 = cv2.cvtColor(np.asarray(img1), cv2.COLOR_BGR2GRAY)
         gray1 = cv2.resize(gray1, (32, 32))

@@ -2,10 +2,10 @@ import json
 import pathlib
 
 from .. import kerasVersion_subFolder, getConfig
-from ..tools.sync_tool import singleton
+from ..tools.sync_tool import  Singletonclass
 
 
-@singleton
+@Singletonclass.singleton
 class KerasGlobalInMem:
     # getInstance
 

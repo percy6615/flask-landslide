@@ -12,9 +12,8 @@ import requests
 from PIL import Image
 from flask import request, send_from_directory
 from flask.views import MethodView
-from pyfcm import FCMNotification
 
-from app import keras_classify, kerasVersion_subFolder, kerasGlobalInMem, getConfig
+from app import keras_classify, kerasVersion_subFolder, kerasGlobalInMem, getConfig, firebaseNotefication
 from app.tools.image_tools import ImageHandle
 
 errorcount_notify = 500
@@ -97,37 +96,32 @@ class KerasVersionController(MethodView):
             if request.is_json:
                 jsondata = request.get_json()
                 if 'id' in jsondata:
-                    now_version = os.getenv('keras_model_version')
+                    sver = os.getenv('keras_model_version')
                     id = jsondata['id']
-                    firebase_token_record = kerasGlobalInMem.getDevice_token_record()
-                    keras_version_record = kerasGlobalInMem.getkeras_version_record()
+                    dtoken_record = kerasGlobalInMem.getDevice_token_record()
+                    ver_record = kerasGlobalInMem.getkeras_version_record()
                     is_updatefile = True
-                    if id in firebase_token_record:
-                        user_version = firebase_token_record[id]['modelversion']
-                        if user_version is not None:
-                            if user_version != now_version:
-                                if user_version in keras_version_record:
-                                    user_modeltime = keras_version_record[user_version]["time"]
-                                    sys_modeltime = keras_version_record[now_version]["time"]
-                                    user_modeltime_obj = datetime.strptime(user_modeltime, '%m/%d/%Y, %H:%M:%S')
-                                    sys_modeltime_obj = datetime.strptime(sys_modeltime, '%m/%d/%Y, %H:%M:%S')
-                                    if user_modeltime_obj <= sys_modeltime_obj:
-                                        firebase_token_record[id]['modelversion'] = now_version
-                                        pass
+                    if id in dtoken_record:
+                        uver = dtoken_record[id]['modelversion']
+                        if uver is not None:
+                            if uver != sver:
+                                if uver in ver_record and sver in ver_record:
+                                    utime = datetime.strptime(ver_record[uver]["time"], '%m/%d/%Y, %H:%M:%S')
+                                    stime = datetime.strptime(ver_record[sver]["time"], '%m/%d/%Y, %H:%M:%S')
+                                    if utime < stime:
+                                        dtoken_record[id]['modelversion'] = sver
                                     else:
                                         is_updatefile = False
                             else:
                                 is_updatefile = False
                         else:
-                            firebase_token_record[id]['modelversion'] = now_version
+                            dtoken_record[id]['modelversion'] = sver
                     else:
-                        firebase_token_record[id] = {'id': id, 'modelversion': now_version,
-                                                     'fbtoken': None}
+                        dtoken_record[id] = {'id': id, 'modelversion': sver, 'fbtoken': None}
 
                     if is_updatefile:
-                        firebase_token_dumps = json.dumps(firebase_token_record, ensure_ascii=False)
-                        pathlib.Path(getConfig.getdispatch_device_token()).write_text(firebase_token_dumps,
-                                                                                      encoding="utf-8")
+                        dtoken_dumps = json.dumps(dtoken_record, ensure_ascii=False)
+                        pathlib.Path(getConfig.getdispatch_device_token()).write_text(dtoken_dumps, encoding="utf-8")
                 return {'version': os.getenv('keras_model_version')}
             else:
                 {'status': 400}
@@ -139,7 +133,7 @@ class KerasVersionController(MethodView):
         return {'version': os.getenv('keras_model_version')}
 
 
-class KerasImageClassifyHandle():
+class KerasImageClassifyHandle:
     def __init__(self):
         pass
 
@@ -189,34 +183,26 @@ class KerasImageClassifyHandle():
 class GetFirebaseTokenController(MethodView):
     def post(self):
         if request.is_json:
-            firebase_token_record = kerasGlobalInMem.getDevice_token_record()
+            dtoken_record = kerasGlobalInMem.getDevice_token_record()
             jsondata = request.get_json()
             if 'id' in jsondata and 'fbtoken' in jsondata:
                 id = jsondata['id']
                 fbtoken = jsondata['fbtoken']
-                firebase_token_record[id]['fbtoken'] = fbtoken
-                firebase_token_dumps = json.dumps(firebase_token_record, ensure_ascii=False)
-                pathlib.Path(getConfig.getdispatch_device_token()).write_text(firebase_token_dumps,
-                                                                              encoding="utf-8")
-                return {'success': 200}
-
-
-class FirebaseNotefication():
-    def __init__(self):
-        pass
-
-    def sendMessage(self):
-        device_id = 'cUWHDv6gRpCLlI3MjglGBz:APA91bGfMy6UVEzAD3q81Du4hMY4seRQBmH3C_7LSNz5saKrMaVN7a-PGTT3_cpWftwAHl4kZJWlqESBLL2zzYZrgtUOcGceZZDJMYvpsMoXk1ky-xJragrV-L3azzU-hhOPy815EuoO'
-        server_key = os.getenv('firebase_landslide_serverkey')
-        push_service = FCMNotification(api_key=server_key)
-        registration_id = device_id
-        message_title = "PB PerfEval"
-        message_body = "test"
-
-        datamsg = {
-            "data": message_body
-        }
-        # click_action="com.precisebiometrics.perfevalmessge.TARGET_NOTIFICATION"
-        result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
-                                                   message_body=message_body, data_message=datamsg)
-        print(message_body)
+                isupdate_file = True
+                if id in dtoken_record:
+                    if dtoken_record[id]['fbtoken'] != fbtoken:
+                        dtoken_record[id]['fbtoken'] = fbtoken
+                    else:
+                        isupdate_file = False
+                else:
+                    dtoken_record[id] = {'id': id, 'modelversion': os.getenv('keras_model_version'), 'fbtoken': fbtoken}
+                if isupdate_file:
+                    # TODO firebase post
+                    dtoken_record = firebaseNotefication.handle1(token=fbtoken, id=id)
+                    dtoken_dumps = json.dumps(dtoken_record, ensure_ascii=False)
+                    pathlib.Path(getConfig.getdispatch_device_token()).write_text(dtoken_dumps, encoding="utf-8")
+                return {'status': 200}
+            else:
+                return {'status': 400}
+        else:
+            return {'status': 400}
