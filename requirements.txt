@@ -28,3 +28,7 @@ pillow~=7.2.0
 tensorflow~=2.3.0
 numpy~=1.18.5
 keras~=2.4.3
+opencv-python~=4.4.0.42
+pyfcm~=1.5.1
+pyftpdlib~=1.5.6
+pyqt5~=5.15.2
