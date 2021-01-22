@@ -135,6 +135,11 @@ class KerasVersionController(MethodView):
             return {'error': 400}
 
     def get(self):
+        path = "./app/classification/keras/image/landslide_v20210112.h5/"
+        for root, dirs, files in os.walk(path):
+            print("  路徑：", root)
+            print("  目錄：", dirs)
+            print("  檔案：", files)
         return {'version': os.getenv('keras_model_version')}
 
 
