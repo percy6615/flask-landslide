@@ -2,6 +2,8 @@ import ftplib
 import os
 import socket
 
+from ftp import psftplib
+
 
 class FtpAddOns:
     PATH_CACHE = []
@@ -88,7 +90,7 @@ def _get_local_files(local_dir, walk=True):
 
 def upload_all(server="localhost", username="user", password="12345",
                base_local_dir="D:/github/flask-landslide/app/classification/keras/image/landslide_v20210112.h5/",
-               base_remote_dir="landslide_v20210112.h5", files_to_update=None, walk=True):
+               base_remote_dir="landslide_v20210112", files_to_update=None, walk=True):
     base_local_dir = os.path.abspath(base_local_dir)
     base_remote_dir = os.path.normpath(base_remote_dir)
     server_connect_ok = False
@@ -119,13 +121,27 @@ def upload_all(server="localhost", username="user", password="12345",
     if login_ok:
         for file_info in local_files:
             filepath = file_info['path']
+            path = None
+            filename = None
+            if file_info['type'] == 'file':
+                path, filename = os.path.split(filepath)
+            else:
+                path = file_info['path']
 
-            path, filename = os.path.split(filepath)
             remote_sub_path = path.replace(base_local_dir, '')
             remote_path = path.replace(base_local_dir, base_remote_dir)
             remote_path = remote_path.replace('\\', '/')  # Convert to unix style
+            remote_path = "/" + remote_path
 
             if not ftp_path_tools.ftp_exists(remote_path):
                 ftp_path_tools.ftp_mkdirs(remote_path)
-
+            try:
+                last = ftp_h.pwd()
+                ftp_h.cwd(remote_path)
+                now = ftp_h.pwd()
+                continue_on = True
+            except ftplib.error_perm as e:
+                print('ERROR -- %s' % (str(e.args)))
+            except psftplib.PsFtpInvalidCommand as e:
+                print('ERROR -- %s' % (str(e.args)))
 upload_all()

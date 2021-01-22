@@ -142,7 +142,7 @@ def upload_all(server,
                     remote_sub_path = path.replace(base_local_dir, '')
                     remote_path = path.replace(base_local_dir, base_remote_dir)
                     remote_path = remote_path.replace('\\', '/')  # Convert to unix style
-
+                    remote_path = "/" + remote_path
                     if not ftp_path_tools.ftp_exists(remote_path):
                         ftp_path_tools.ftp_mkdirs(remote_path)
 
@@ -215,7 +215,7 @@ myPath = r'./percy/sss/'
 path = "./app/classification/keras/image/landslide_v20210112.h5/"
 
 path = "D:/github/flask-landslide/app/classification/keras/image/landslide_v20210112.h5/"
-path1= "./landslide_v20210112"
+path1= "landslide_v20210112"
 print(_get_local_files(local_dir=path))
 
 # uploadfile(ftp, "/percy1/test1.txt", "test.txt")
