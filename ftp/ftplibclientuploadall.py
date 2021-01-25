@@ -98,6 +98,7 @@ def upload_all(server="localhost", username="user", password="12345",
         local_files = files_to_update
     else:
         local_files = _get_local_files(base_local_dir, walk)
+
     ftp_h = ftplib.FTP()
     try:
         ftp_h.connect(server, 21)
@@ -109,39 +110,62 @@ def upload_all(server="localhost", username="user", password="12345",
     except socket.error as e:
         print('ERROR -- Could not connect to (%s): %s' % (server, str(e.args)))
 
-    ftp_path_tools = FtpAddOns(ftp_h)
-    if server_connect_ok:
-        try:
-            ftp_h.login(username, password)
-            print('Logged into (%s) as (%s)' % (server, username))
-            login_ok = True
-        except ftplib.error_perm as e:
-            print('ERROR -- Check Username/Password: %s' % (str(e.args)))
-
-    if login_ok:
-        for file_info in local_files:
-            filepath = file_info['path']
-            path = None
-            filename = None
-            if file_info['type'] == 'file':
-                path, filename = os.path.split(filepath)
-            else:
-                path = file_info['path']
-
-            remote_sub_path = path.replace(base_local_dir, '')
-            remote_path = path.replace(base_local_dir, base_remote_dir)
-            remote_path = remote_path.replace('\\', '/')  # Convert to unix style
-            remote_path = "/" + remote_path
-
-            if not ftp_path_tools.ftp_exists(remote_path):
-                ftp_path_tools.ftp_mkdirs(remote_path)
+    if len(local_files) > 0:
+        ftp_path_tools = FtpAddOns(ftp_h)
+        if server_connect_ok:
             try:
-                last = ftp_h.pwd()
-                ftp_h.cwd(remote_path)
-                now = ftp_h.pwd()
-                continue_on = True
+                ftp_h.login(username, password)
+                print('Logged into (%s) as (%s)' % (server, username))
+                login_ok = True
             except ftplib.error_perm as e:
-                print('ERROR -- %s' % (str(e.args)))
-            except psftplib.PsFtpInvalidCommand as e:
-                print('ERROR -- %s' % (str(e.args)))
+                print('ERROR -- Check Username/Password: %s' % (str(e.args)))
+
+        if login_ok:
+            for file_info in local_files:
+                filepath = file_info['path']
+                path = None
+                filename = None
+                if file_info['type'] == 'file':
+                    path, filename = os.path.split(filepath)
+                else:
+                    path = file_info['path']
+
+                remote_sub_path = path.replace(base_local_dir, '')
+                remote_path = path.replace(base_local_dir, base_remote_dir)
+                remote_path = remote_path.replace('\\', '/')  # Convert to unix style
+                remote_path = "/" + remote_path
+
+                if not ftp_path_tools.ftp_exists(remote_path):
+                    ftp_path_tools.ftp_mkdirs(remote_path)
+                try:
+                    last = ftp_h.pwd()
+                    ftp_h.cwd(remote_path)
+                    now = ftp_h.pwd()
+                    continue_on = True
+                except ftplib.error_perm as e:
+                    print('ERROR -- %s' % (str(e.args)))
+                except psftplib.PsFtpInvalidCommand as e:
+                    print('ERROR -- %s' % (str(e.args)))
+
+                if continue_on and filename is not None:
+                    f_h = open(filepath, 'rb')
+
+                    display_filename = os.path.join(remote_sub_path, filename)
+                    display_filename = display_filename.replace('\\', '/')
+                    print(display_filename)
+                    send_cmd = 'STOR %s' % (filename)
+                    try:
+                        ftp_h.storbinary(send_cmd, f_h)
+                        f_h.close()
+                        print('Done!')
+                    except Exception as e:
+                        print('ERROR!')
+                        print(str(e.args))
+                else:
+                    print("WARNING -- File no longer exists, (%s)!" % (filepath))
+            ftp_h.quit()
+    else:
+        print('ERROR -- No files found in (%s)' % (base_local_dir))
+
+
 upload_all()
