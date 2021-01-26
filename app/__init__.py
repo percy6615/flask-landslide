@@ -77,6 +77,7 @@ class FlaskApp:
         self.keras_classify = KerasClassifyLandslide()
         self.app.config['JWT_SECRET_KEY'] = 'this-should-be-change'
         self.cache = Cache(self.app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': self.c.getbasedircache()})
+        self.start()
 
     def getApp(self):
         return self.app
@@ -92,6 +93,10 @@ class FlaskApp:
 
     def getConfig(self):
         return self.c
+
+    def start(self):
+        with open('PID.file', 'w+') as pidfile:
+            pidfile.write(str(os.getpid()))
 
 
 flask_app = FlaskApp()

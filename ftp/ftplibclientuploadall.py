@@ -2,8 +2,6 @@ import ftplib
 import os
 import socket
 
-from ftp import psftplib
-
 
 class FtpAddOns:
     PATH_CACHE = []
@@ -88,7 +86,7 @@ def _get_local_files(local_dir, walk=True):
     return result_list
 
 
-def upload_all(server="localhost", username="user", password="12345",
+def upload_all(server="192.168.4.200", port=621, username="user", password="12345",
                base_local_dir="D:/github/flask-landslide/app/classification/keras/image/landslide_v20210112.h5/",
                base_remote_dir="landslide_v20210112", files_to_update=None, walk=True):
     base_local_dir = os.path.abspath(base_local_dir)
@@ -100,8 +98,9 @@ def upload_all(server="localhost", username="user", password="12345",
         local_files = _get_local_files(base_local_dir, walk)
 
     ftp_h = ftplib.FTP()
+    ftp_h.set_pasv(False)
     try:
-        ftp_h.connect(server, 21)
+        ftp_h.connect(server, port)
         server_connect_ok = True
     except socket.gaierror as e:
         print('ERROR -- Could not connect to (%s): %s' % (server, str(e.args)))
@@ -143,8 +142,6 @@ def upload_all(server="localhost", username="user", password="12345",
                     now = ftp_h.pwd()
                     continue_on = True
                 except ftplib.error_perm as e:
-                    print('ERROR -- %s' % (str(e.args)))
-                except psftplib.PsFtpInvalidCommand as e:
                     print('ERROR -- %s' % (str(e.args)))
 
                 if continue_on and filename is not None:

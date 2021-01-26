@@ -1,5 +1,5 @@
-import logging
 from argparse import ArgumentParser
+
 from dotenv import load_dotenv
 
 from app import flask_app
@@ -17,4 +17,5 @@ if __name__ == '__main__':
     arg_parser.add_argument('-d', '--debug', default=False, help='debug')
     options = arg_parser.parse_args()
     # app.run(host='0.0.0.0', port=8000, debug=True)
+    # , use_reloader = True
     app.run(host='0.0.0.0', debug=options.debug, port=options.port, threaded=True)
