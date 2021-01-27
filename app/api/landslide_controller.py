@@ -13,7 +13,7 @@ from PIL import Image
 from flask import request, send_from_directory
 from flask.views import MethodView
 
-from app import keras_classify, kerasVersion_subFolder, kerasGlobalInMem, getConfig, firebaseNotefication, flask_app
+from app import keras_classify, kerasVersion_subFolder, kerasGlobalInMem, getConfig, firebaseNotefication
 from app.tools.image_tools import ImageHandle
 
 errorcount_notify = 500
@@ -43,10 +43,14 @@ class UploadImageToClassifyController(MethodView):
         elif type is not None and type == "model":
             model = request.files['filedata']
             model.save('./app/classification/keras/keras_model/' + model.filename)
-            func = request.environ.get('werkzeug.server.shutdown')
-            func()
-            os.system("python start.py -u "+str(os.getpid()))
             return {"status": 200}
+
+
+class ShutdownServiceController(MethodView):
+    def post(self):
+        func = request.environ.get('werkzeug.server.shutdown')
+        func()
+        return {"status": 200}
 
 
 class UploadImageUrlToClassifyController(MethodView):

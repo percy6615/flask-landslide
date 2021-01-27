@@ -1,10 +1,6 @@
 from argparse import ArgumentParser
 
-from dotenv import load_dotenv
-
 from app import flask_app
-
-load_dotenv()
 
 app = flask_app.getApp()
 # log = logging.getLogger('werkzeug')

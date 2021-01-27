@@ -42,6 +42,7 @@ class KerasClassifyLandslide:
                 self._PIL_INTERPOLATION_METHODS['lanczos'] = Image.LANCZOS
 
     def create_model(self, modelName=os.getenv('keras_model_version')):
+        print(modelName)
         baseModel = xception.Xception(include_top=False, input_shape=(299, 299, 3))
         basedirs = os.path.abspath(os.path.dirname(__file__))
         nn_input = baseModel.input
