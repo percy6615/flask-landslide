@@ -38,7 +38,7 @@ def start():
 def stop():
     if inmeme.getmem():
         url = "http://localhost:8000/webhooks/shutdown"
-        requests.post(url)
+        requests.post(url,data={"action":"shutdown"})
         inmeme.setmem(False)
     return {"status": 200}
 

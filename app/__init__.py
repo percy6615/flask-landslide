@@ -1,6 +1,7 @@
 # inital
 from flask import send_from_directory
 
+from ftp.ftplibclientuploadall import FTPClientToDocker
 from .flaskapp import FlaskApp
 
 flask_app = FlaskApp()
@@ -17,6 +18,7 @@ from .tools.firebase_tools import FirebaseNotefication
 
 firebaseNotefication = FirebaseNotefication()
 firebaseNotefication.postNewModelVersion()
+ftpclient = FTPClientToDocker()
 from . import api
 
 

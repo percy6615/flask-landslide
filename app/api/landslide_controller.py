@@ -13,10 +13,10 @@ from PIL import Image
 from flask import request, send_from_directory
 from flask.views import MethodView
 
-from app import keras_classify, kerasVersion_subFolder, kerasGlobalInMem, getConfig, firebaseNotefication
+from app import keras_classify, kerasVersion_subFolder, kerasGlobalInMem, getConfig, firebaseNotefication, ftpclient
 from app.tools.image_tools import ImageHandle
 
-errorcount_notify = 500
+errorcount_notify = 5
 
 
 # dotenv_file = dotenv.find_dotenv()
@@ -25,6 +25,17 @@ errorcount_notify = 500
 
 def send_static_content(path):
     return send_from_directory('public', path)
+
+
+def check_ping(hostname="192.168.4.200"):
+    response = os.system("ping  -n 1 " + hostname)
+    # and then check the response...
+    if response == 0:
+        pingstatus = True
+    else:
+        pingstatus = False
+
+    return pingstatus
 
 
 class PublicPathController(MethodView):
@@ -46,10 +57,18 @@ class UploadImageToClassifyController(MethodView):
             return {"status": 200}
 
 
-class ShutdownServiceController(MethodView):
+class ActionServiceController(MethodView):
     def post(self):
-        func = request.environ.get('werkzeug.server.shutdown')
-        func()
+        if request.is_json:
+            jsondata = request.get_json()
+            action = jsondata['action']
+            if action == "shutdown":
+                func = request.environ.get('werkzeug.server.shutdown')
+                func()
+            elif action == "ftpupload":
+                ftpclient.upload_all(
+                    base_local_dir=kerasVersion_subFolder,
+                    base_remote_dir=os.getenv("keras_model_version"))
         return {"status": 200}
 
 
@@ -90,14 +109,21 @@ class ClassifyErrorByPersonController(MethodView):
                         pathlib.Path(kerasVersion_subFolder + "/data.json").write_text(kerasfile, encoding="utf-8")
                         error_count = 0
                         total_count = len(kerasfilejsondata)
+
                         for kuuid in kerasfilejsondata:
                             if kerasfilejsondata[kuuid]['machineclass'] != kerasfilejsondata[kuuid]['personclass']:
                                 error_count = error_count + 1
-                        if (error_count >= errorcount_notify) or (
-                                total_count > errorcount_notify and error_count / total_count > 0.1):
-                            payload = {"message": "landslid must be retrain"}
+                        notifytf = ((error_count >= errorcount_notify) or (
+                                total_count > errorcount_notify and error_count / total_count > 0.1)) and error_count % errorcount_notify < 3
+                        if ((error_count >= errorcount_notify) or (
+                                total_count > errorcount_notify and error_count / total_count > 0.1)) :
+                            payload = {"message": "landslide must be retrain"}
                             headers = {'Authorization': 'Bearer ' + os.getenv("line_notify_oneoone"), }
                             r = requests.post('https://notify-api.line.me/api/notify', payload, headers=headers)
+                            # if check_ping():
+                            #     ftpclient.upload_all(
+                            #         base_local_dir=kerasVersion_subFolder,
+                            #         base_remote_dir=os.getenv("keras_model_version"))
                         return {'status': 200}
                     else:
                         return {'status': 401}
