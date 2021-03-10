@@ -1,33 +1,29 @@
-import os
-
-from flask import render_template
-
 from .. import flask_app
 
 app = flask_app.getApp()
 routerCache = flask_app.getCache()
 
-from .landslide_controller import PublicPathController, UploadImageToClassifyController, \
-    UploadImageUrlToClassifyController, KerasVersionController, ClassifyErrorByPersonController, \
-    GetFirebaseTokenController, ActionServiceController
-
-app.add_url_rule('/webhooks/postimage',
-                 view_func=UploadImageToClassifyController.as_view('ClassifyLandSlideController'))
+from .landslide_controller import PublicPathController, KerasUploadImageToClassifyController, \
+    KerasUploadImageUrlToClassifyController, KerasVersionController, KerasClassifyErrorByPersonController, \
+    KerasGetFirebaseTokenController, ActionServiceController
 
 app.add_url_rule('/webhooks/public/<path:path>',
                  view_func=PublicPathController.as_view('PublicPathController'))
 
+app.add_url_rule('/webhooks/action',
+                 view_func=ActionServiceController.as_view('ActionServiceController'))
+
+app.add_url_rule('/webhooks/postimage',
+                 view_func=KerasUploadImageToClassifyController.as_view('KerasUploadImageToClassifyController'))
+
 app.add_url_rule('/webhooks/postimageurl',
-                 view_func=UploadImageUrlToClassifyController.as_view('PostImageUrlController'))
+                 view_func=KerasUploadImageUrlToClassifyController.as_view('KerasUploadImageUrlToClassifyController'))
 
 app.add_url_rule('/webhooks/kerasversion',
                  view_func=KerasVersionController.as_view('KerasVersionController'))
 
 app.add_url_rule('/webhooks/posterrorbyperson',
-                 view_func=ClassifyErrorByPersonController.as_view('ClassifyErrorByPersonController'))
+                 view_func=KerasClassifyErrorByPersonController.as_view('KerasClassifyErrorByPersonController'))
 
 app.add_url_rule('/webhooks/postfcmtoken',
-                 view_func=GetFirebaseTokenController.as_view('GetFirebaseTokenController'))
-
-app.add_url_rule('/webhooks/action',
-                 view_func=ActionServiceController.as_view('ShutdownServiceController'))
+                 view_func=KerasGetFirebaseTokenController.as_view('KerasGetFirebaseTokenController'))

@@ -1,13 +1,15 @@
-import pymysql
-from sqlalchemy import create_engine
 import os
-from app.tools import log_tool
-from app.tools.sync_tool import synchronized, singleton
-from dotenv import load_dotenv
 
+import pymysql
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+
+from app.tools import log_tool
+from app.tools.sync_tool import synchronized, Singletonclass
 
 logger = log_tool.logger
 load_dotenv()
+
 
 def create_ng_mysql():
     logger.info('configure database settings for pandas')
@@ -20,7 +22,8 @@ def create_ng_mysql():
     engine = create_engine(uri)
     return engine
 
-@singleton
+
+@Singletonclass.singleton
 class MySQLs:
     # getInstance
 
@@ -57,7 +60,7 @@ class MySQLs:
             self._logout()
             return result
         except pymysql.Error as e:
-            print('mysql conn get error '+str(e))
+            print('mysql conn get error ' + str(e))
 
     @synchronized
     def get(self, sql):
@@ -73,7 +76,7 @@ class MySQLs:
             self._logout()
             return data  # return tuple
         except pymysql.Error as e:
-            print('mysql conn get error '+str(e))
+            print('mysql conn get error ' + str(e))
 
     def _logout(self):
         try:
@@ -82,7 +85,7 @@ class MySQLs:
                 self.conn.close()
             logger.info('log out from mysql database')
         except pymysql.Error as e:
-            logger.warning('already logged out from Postgres database'+str(e))
+            logger.warning('already logged out from Postgres database' + str(e))
 
     @staticmethod
     def get_index_dict(cur):
@@ -95,7 +98,6 @@ class MySQLs:
             index_dict_type[desc[0]] = desc[1]
             index = index + 1
         return index_dict, index_dict_type
-
 
     def get_dict_data_sql(self, sql):
 
@@ -111,13 +113,13 @@ class MySQLs:
         for datai in data:
             resi = dict()
             for indexi in index_dict:
-                    if datai[index_dict[indexi]] is None:
-                        if index_dict_type[indexi] == pymysql.constants.FIELD_TYPE.VAR_STRING:
-                            resi[indexi] = ''
-                        elif index_dict_type[indexi] == pymysql.constants.FIELD_TYPE.DATETIME:
-                            resi[indexi] = None
-                    else:
-                        resi[indexi] = datai[index_dict[indexi]]
+                if datai[index_dict[indexi]] is None:
+                    if index_dict_type[indexi] == pymysql.constants.FIELD_TYPE.VAR_STRING:
+                        resi[indexi] = ''
+                    elif index_dict_type[indexi] == pymysql.constants.FIELD_TYPE.DATETIME:
+                        resi[indexi] = None
+                else:
+                    resi[indexi] = datai[index_dict[indexi]]
             res.append(resi)
         self._logout()
         return res

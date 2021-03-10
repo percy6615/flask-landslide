@@ -43,7 +43,7 @@ class PublicPathController(MethodView):
         return send_static_content(path)
 
 
-class UploadImageToClassifyController(MethodView):
+class KerasUploadImageToClassifyController(MethodView):
     def post(self):
         print("file" == request.values.get("type"))
         type = request.values.get("type")
@@ -72,7 +72,7 @@ class ActionServiceController(MethodView):
         return {"status": 200}
 
 
-class UploadImageUrlToClassifyController(MethodView):
+class KerasUploadImageUrlToClassifyController(MethodView):
     def post(self):
         if request.is_json:
             jsondata = request.get_json()
@@ -87,7 +87,7 @@ class UploadImageUrlToClassifyController(MethodView):
             return {'status': 400}
 
 
-class ClassifyErrorByPersonController(MethodView):
+class KerasClassifyErrorByPersonController(MethodView):
     def post(self):
         if request.is_json:
             jsondata = request.get_json()
@@ -175,11 +175,11 @@ class KerasVersionController(MethodView):
             return {'error': 400}
 
     def get(self):
-        path = "./app/classification/keras/image/landslide_v20210112.h5/"
-        for root, dirs, files in os.walk(path):
-            print("  路徑：", root)
-            print("  目錄：", dirs)
-            print("  檔案：", files)
+        # path = "./app/classification/keras/image/landslide_v20210112.h5/"
+        # for root, dirs, files in os.walk(path):
+        #     print("  路徑：", root)
+        #     print("  目錄：", dirs)
+        #     print("  檔案：", files)
         return {'version': os.getenv('keras_model_version')}
 
 
@@ -216,13 +216,13 @@ class KerasImageClassifyHandle:
             classify_imageName = keras_classify.defineClassifyIntToStr(kerasfilejsondata[str(my_uuid)]['personclass'])
             maxvalue = kerasfilejsondata[str(my_uuid)]['percent']
         else:
-            result, resultarg = keras_classify.classifyimagebytes(image)
-            maxvalue = np.max(result)
-            classify_imageName = str(keras_classify.defineClassifyIntToStr(resultarg))
+            resultpercentList, resultclass = keras_classify.classifyimagebytes(image)
+            maxvalue = np.max(resultpercentList)
+            classify_imageName = str(keras_classify.defineClassifyIntToStr(resultclass))
             # filepath = keras_version_folder + "/" + str(classify_image) + "/" + my_uuid + "." + ext
-            savepath = kerasVersion_subFolder + "/" + str(resultarg) + "/" + my_uuid + "." + ext
-            kerasfilejsondata[my_uuid] = {'uuid': my_uuid, 'url': url, 'machineclass': int(resultarg),
-                                          'personclass': int(resultarg), 'urlfilename': urlfilename,
+            savepath = kerasVersion_subFolder + "/" + str(resultclass) + "/" + my_uuid + "." + ext
+            kerasfilejsondata[my_uuid] = {'uuid': my_uuid, 'url': url, 'machineclass': int(resultclass),
+                                          'personclass': int(resultclass), 'urlfilename': urlfilename,
                                           'filepath': savepath, 'phash': str(degree), 'percent': float(maxvalue)}
             kerasfilejsondata = json.dumps(kerasfilejsondata, ensure_ascii=False)
             pathlib.Path(kerasVersion_subFolder + "/data.json").write_text(kerasfilejsondata,
@@ -233,7 +233,7 @@ class KerasImageClassifyHandle:
         return str({"uuid": str(my_uuid), 'machineclassname': classify_imageName, 'percent': maxvalue})
 
 
-class GetFirebaseTokenController(MethodView):
+class KerasGetFirebaseTokenController(MethodView):
     def post(self):
         if request.is_json:
             dtoken_record = kerasGlobalInMem.getDevice_token_record()
@@ -259,3 +259,10 @@ class GetFirebaseTokenController(MethodView):
                 return {'status': 400}
         else:
             return {'status': 400}
+
+
+class EnetClassifyController(MethodView):
+    def post(self):
+        return {}
+    def get(self):
+        return {}

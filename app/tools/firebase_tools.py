@@ -58,7 +58,7 @@ class FirebaseNotefication:
         mver_record = kerasGlobalInMem.getkeras_version_record()
         sver = os.getenv('keras_model_version')
         if sver not in mver_record:
-            mver_record[sver] = {'modelversion': sver, 'time': datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}
+            mver_record[sver] = {'modelversion': sver, 'time': datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}
             mver_dumps = json.dumps(mver_record, ensure_ascii=False)
             pathlib.Path(getConfig.getVersion_dispatch_record()).write_text(mver_dumps, encoding="utf-8")
         # TODO postfirebase
