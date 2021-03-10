@@ -1,9 +1,27 @@
 from abc import ABCMeta, abstractmethod
 
+import PIL
+from PIL import Image
+
 
 class ClassifyInterface(metaclass=ABCMeta):
     def __init__(self):
         self.classify_model = self.create_model()
+        if PIL.Image is not None:
+            self._PIL_INTERPOLATION_METHODS = {
+                'nearest': PIL.Image.NEAREST,
+                'bilinear': PIL.Image.BILINEAR,
+                'bicubic': PIL.Image.BICUBIC,
+            }
+            # These methods were only introduced in version 3.4.0 (2016).
+            if hasattr(Image, 'HAMMING'):
+                self._PIL_INTERPOLATION_METHODS['hamming'] = Image.HAMMING
+            if hasattr(Image, 'BOX'):
+                self._PIL_INTERPOLATION_METHODS['box'] = Image.BOX
+            # This method is new in version 1.1.3 (2013).
+            if hasattr(Image, 'LANCZOS'):
+                self._PIL_INTERPOLATION_METHODS['lanczos'] = Image.LANCZOS
+
     @abstractmethod
     def create_model(self):
         pass

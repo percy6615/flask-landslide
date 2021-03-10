@@ -16,7 +16,7 @@ class KerasGlobalInMem:
         self.keras_version_record = json.loads(pathlib.Path(getConfig.getVersion_dispatch_record(),
                                                             encoding="utf-8").read_text(
             encoding='utf-8'))
-        self.device_token = json.loads(pathlib.Path(getConfig.getdispatch_device_token(),
+        self.device_token = json.loads(pathlib.Path(getConfig.getDispatch_device_token(),
                                                     encoding="utf-8").read_text(
             encoding='utf-8'))
 

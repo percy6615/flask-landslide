@@ -10,6 +10,8 @@ from flask_mail import Mail
 from flask_moment import Moment
 from flask_pagedown import PageDown
 from werkzeug.middleware.proxy_fix import ProxyFix
+
+from .classification.enet.enet_classify_land import EnetClassifyLandslide
 from .classification.keras.keras_classify_land import KerasClassifyLandslide
 from .tools.config_tools import config
 

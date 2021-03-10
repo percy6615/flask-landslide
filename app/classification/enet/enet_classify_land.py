@@ -7,7 +7,7 @@
 # from torchvision import transforms
 #
 # basedirs = os.path.abspath(os.path.dirname(__file__))
-# weight_path = basedirs + '/enet_model/' + 'net_060_ground.pth'
+# weight_path = basedirs + '/enet_model/' + 'landslide_ground_v20210310.pth'
 # device = torch.device("cpu")
 #
 # model = EfficientNet.from_name(model_name='efficientnet-b3')
@@ -41,19 +41,21 @@
 #         print('({p:.2f}%)'.format( p=prob * 100))
 #         print(idx)
 
+
+
+
 import json
 import os
 from abc import ABC
 from io import BytesIO
 
 import PIL
-import numpy as np
+from PIL import Image
 import requests
 import torch
-from PIL import Image
+
 from dotenv import load_dotenv
 from efficientnet_pytorch import EfficientNet
-from tensorflow.keras.preprocessing import image
 from torchvision import transforms
 
 from app.classification import ClassifyInterface
@@ -62,8 +64,10 @@ load_dotenv()
 
 
 class EnetClassifyLandslide(ClassifyInterface, ABC):
+# class EnetClassifyLandslide():
     def __init__(self):
-
+        # super().__init__()
+        self.classify_model = self.create_model()
         if PIL.Image is not None:
             self._PIL_INTERPOLATION_METHODS = {
                 'nearest': PIL.Image.NEAREST,
@@ -106,32 +110,30 @@ class EnetClassifyLandslide(ClassifyInterface, ABC):
         with torch.no_grad():
             outputs = self.classify_model(img)
             _, predicted = torch.max(outputs.data, 1)
-            print(predicted.item())
+            resultpercentList = []
             for idx in torch.topk(outputs, k=1).indices.squeeze(0).tolist():
                 prob = torch.softmax(outputs, dim=1)[0, idx].item()
+                resultpercentList.append(prob)
+        return resultpercentList, predicted.item()
 
-        # img = image.img_to_array(img)
-        # img /= 255.0
-        # img = np.expand_dims(img, axis=0)
-        # result = self.keras_model.predict(img)
-        # resultarg = np.argmax(result)
-        # return result, resultarg
+    def classifyimagepath(self, img_path=os.path.join(os.path.dirname(__file__), "../../public/1.jpg")):
 
-    def classifyimagepath(self, img_path=os.path.join(os.path.dirname(__file__), "../../public/2.jpg")):
-        img_path = 'D:/github/flask-landslide/app/public/1.jpg'
         tfms = transforms.Compose([transforms.Resize(224), transforms.ToTensor(),
                                    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]), ])
-        img = Image.open(img_path)
+        img = tfms(self.load_img(Image.open(img_path), target_size=(224, 224))).unsqueeze(0)
+        return self.classify(img)
+
+    def classifyurl(self, url='http://127.0.0.1/webhooks/public/1.png'):
+        tfms = transforms.Compose([transforms.Resize(224), transforms.ToTensor(),
+                                   transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]), ])
+        response = requests.get(url)
+        img = Image.open(BytesIO(response.content))
         img = self.load_img(img, target_size=(224, 224))
         return self.classify(tfms(img).unsqueeze(0))
 
+    def classifyimagebytes(self, imagebytes):
+        tfms = transforms.Compose([transforms.Resize(224), transforms.ToTensor(),
+                                   transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]), ])
+        img = self.load_img(imagebytes, target_size=(224, 224))
+        return self.classify(tfms(img).unsqueeze(0))
 
-
-    def classifyurl(self, url='http://127.0.0.1/webhooks/public/1.png'):
-        response = requests.get(url)
-        img = Image.open(BytesIO(response.content))
-        img = self.load_img(img)
-        return self.classify(img)
-
-
-EnetClassifyLandslide().classifyimagepath()

@@ -16,7 +16,8 @@ from keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from keras.models import Model
 from keras.preprocessing import image
 
-from app.classification import ClassifyInterface
+# from app.classification import ClassifyInterface
+from .. import ClassifyInterface
 
 load_dotenv()
 
@@ -30,20 +31,20 @@ class KerasClassifyLandslide(ClassifyInterface, ABC):
         sess = tf.compat.v1.Session(config=config)
         tf.compat.v1.keras.backend.set_session(sess)
         # self.keras_model = self.create_model()
-        if PIL.Image is not None:
-            self._PIL_INTERPOLATION_METHODS = {
-                'nearest': PIL.Image.NEAREST,
-                'bilinear': PIL.Image.BILINEAR,
-                'bicubic': PIL.Image.BICUBIC,
-            }
-            # These methods were only introduced in version 3.4.0 (2016).
-            if hasattr(Image, 'HAMMING'):
-                self._PIL_INTERPOLATION_METHODS['hamming'] = Image.HAMMING
-            if hasattr(Image, 'BOX'):
-                self._PIL_INTERPOLATION_METHODS['box'] = Image.BOX
-            # This method is new in version 1.1.3 (2013).
-            if hasattr(Image, 'LANCZOS'):
-                self._PIL_INTERPOLATION_METHODS['lanczos'] = Image.LANCZOS
+        # if PIL.Image is not None:
+        #     self._PIL_INTERPOLATION_METHODS = {
+        #         'nearest': PIL.Image.NEAREST,
+        #         'bilinear': PIL.Image.BILINEAR,
+        #         'bicubic': PIL.Image.BICUBIC,
+        #     }
+        #     # These methods were only introduced in version 3.4.0 (2016).
+        #     if hasattr(Image, 'HAMMING'):
+        #         self._PIL_INTERPOLATION_METHODS['hamming'] = Image.HAMMING
+        #     if hasattr(Image, 'BOX'):
+        #         self._PIL_INTERPOLATION_METHODS['box'] = Image.BOX
+        #     # This method is new in version 1.1.3 (2013).
+        #     if hasattr(Image, 'LANCZOS'):
+        #         self._PIL_INTERPOLATION_METHODS['lanczos'] = Image.LANCZOS
 
     def create_model(self, modelName=os.getenv('keras_model_version')):
         baseModel = xception.Xception(include_top=False, input_shape=(299, 299, 3))

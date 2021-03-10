@@ -166,7 +166,7 @@ class KerasVersionController(MethodView):
 
                     if is_updatefile:
                         dtoken_dumps = json.dumps(dtoken_record, ensure_ascii=False)
-                        pathlib.Path(getConfig.getdispatch_device_token()).write_text(dtoken_dumps, encoding="utf-8")
+                        pathlib.Path(getConfig.getDispatch_device_token()).write_text(dtoken_dumps, encoding="utf-8")
                 return {'version': os.getenv('keras_model_version')}
             else:
                 {'status': 400}
@@ -253,7 +253,7 @@ class KerasGetFirebaseTokenController(MethodView):
                     # TODO firebase post
                     dtoken_record = firebaseNotefication.handle1(token=fbtoken, id=id)
                     dtoken_dumps = json.dumps(dtoken_record, ensure_ascii=False)
-                    pathlib.Path(getConfig.getdispatch_device_token()).write_text(dtoken_dumps, encoding="utf-8")
+                    pathlib.Path(getConfig.getDispatch_device_token()).write_text(dtoken_dumps, encoding="utf-8")
                 return {'status': 200}
             else:
                 return {'status': 400}
