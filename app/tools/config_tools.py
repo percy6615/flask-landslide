@@ -11,7 +11,7 @@ def createFolder(folderPath):
 class config():
     def __init__(self):
         self.keras_version_sub_folder = './app/classification/keras/image/' + str(os.getenv('keras_model_version'))
-        obj = json.loads(os.getenv('enet_model_version'))
+        obj = json.loads(os.getenv('enet_air_model_version'))
         self.enet_version_sub_folder = './app/classification/enet/image/' + str(obj['model_name'])
         if not os.path.exists(self.keras_version_sub_folder):
             for sub in range(5):

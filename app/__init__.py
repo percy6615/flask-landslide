@@ -11,9 +11,9 @@ keras_classify = flask_app.getKerasModel()
 getConfig = flask_app.getConfig()
 
 # content
-from .model.global_data import KerasGlobalInMem
+from .model.global_data import GlobalInMem
 
-kerasGlobalInMem = KerasGlobalInMem()
+kerasGlobalInMem = GlobalInMem()
 from .tools.firebase_tools import FirebaseNotefication
 
 firebaseNotefication = FirebaseNotefication()
