@@ -22,9 +22,9 @@ class config():
                 pathlib.Path(self.enet_version_sub_folder + "/" + str(sub)).mkdir(parents=True,
                                                                                    exist_ok=True)
         createFolder(self.keras_version_sub_folder + "/data.json")
-        self.version_dispatch_record = 'env.json'
+        self.version_env_fileName = 'env.json'
         self.version_dispatch_device_token = 'device_token.json'
-        createFolder(self.version_dispatch_record)
+        createFolder(self.version_env_fileName)
         createFolder(self.version_dispatch_device_token)
         self.basedirs = os.path.abspath(os.path.dirname(__file__))
         self.basedircache = self.basedirs + '/cache'
@@ -35,8 +35,8 @@ class config():
     def getbasedircache(self):
         return self.basedircache
 
-    def getVersion_dispatch_record(self):
-        return self.version_dispatch_record
+    def getVersion_evn_fileName(self):
+        return self.version_env_fileName
 
     def getDispatch_device_token(self):
         return self.version_dispatch_device_token

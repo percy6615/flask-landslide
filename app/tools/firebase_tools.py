@@ -5,7 +5,7 @@ import pathlib
 
 from pyfcm import FCMNotification
 
-from app import kerasGlobalInMem, getConfig
+from app import globalInMem, getConfig
 
 
 class FirebaseNotefication:
@@ -35,8 +35,8 @@ class FirebaseNotefication:
             result = push_service.single_device_data_message(registration_id=registration_id, data_message=datamsg)
             return result['success']
 
-    def handle1(self, token="", id=""):
-        dtoken_record = kerasGlobalInMem.getDevice_token_record()
+    def handleByArg(self, token="", id=""):
+        dtoken_record = globalInMem.getDevice_token_record()
         if id in dtoken_record:
             if dtoken_record[id]['modelversion'] != os.getenv('keras_model_version'):
                 result = self.sendDataMessage(device_id=token, message_body={"title": "版本更新", "body": "版本更新"})
@@ -45,7 +45,7 @@ class FirebaseNotefication:
         return dtoken_record
 
     def handle(self):
-        dtoken_record = kerasGlobalInMem.getDevice_token_record()
+        dtoken_record = globalInMem.getDevice_token_record()
         for k in dtoken_record:
             if dtoken_record[k]['modelversion'] != os.getenv('keras_model_version'):
                 token = dtoken_record[k]['fbtoken']
@@ -55,11 +55,11 @@ class FirebaseNotefication:
         return dtoken_record
 
     def postNewModelVersion(self):
-        mver_record = kerasGlobalInMem.getkeras_version_record()
+        mver_record = globalInMem.getVersion_dispatch_record()
         sver = os.getenv('keras_model_version')
         if sver not in mver_record:
             mver_record[sver] = {'modelversion': sver, 'time': datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}
             mver_dumps = json.dumps(mver_record, ensure_ascii=False)
-            pathlib.Path(getConfig.getVersion_dispatch_record()).write_text(mver_dumps, encoding="utf-8")
+            pathlib.Path(getConfig.getVersion_evn_fileName()).write_text(mver_dumps, encoding="utf-8")
         # TODO postfirebase
         self.handle()

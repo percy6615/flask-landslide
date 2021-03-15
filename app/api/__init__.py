@@ -27,3 +27,9 @@ app.add_url_rule('/webhooks/posterrorbyperson',
 
 app.add_url_rule('/webhooks/postfcmtoken',
                  view_func=KerasGetFirebaseTokenController.as_view('KerasGetFirebaseTokenController'))
+
+app.add_url_rule('/webhooks/enetairpostimage',
+                 view_func=KerasUploadImageToClassifyController.as_view('KerasUploadImageToClassifyController'))
+
+app.add_url_rule('/webhooks/enetgroundpostimage',
+                 view_func=KerasUploadImageToClassifyController.as_view('KerasUploadImageToClassifyController'))

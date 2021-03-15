@@ -13,7 +13,7 @@ from PIL import Image
 from flask import request, send_from_directory
 from flask.views import MethodView
 
-from app import keras_classify, kerasVersion_subFolder, kerasGlobalInMem, getConfig, firebaseNotefication, ftpclient
+from app import keras_classify, kerasVersion_subFolder, globalInMem, getConfig, firebaseNotefication, ftpclient
 from app.tools.image_tools import ImageHandle
 
 errorcount_notify = 5
@@ -94,7 +94,7 @@ class KerasClassifyErrorByPersonController(MethodView):
             if 'uuid' in jsondata and 'personclassname' in jsondata:
                 uuid = jsondata['uuid']
                 personclassname = jsondata['personclassname']
-                kerasfilejsondata = kerasGlobalInMem.getkerasfilejsondata()
+                kerasfilejsondata = globalInMem.getkerasfilejsondata()
                 if uuid in kerasfilejsondata:
                     personclass = keras_classify.defineClassifyStrToInt(personclassname)
                     if personclass != -1:
@@ -116,7 +116,7 @@ class KerasClassifyErrorByPersonController(MethodView):
                         notifytf = ((error_count >= errorcount_notify) or (
                                 total_count > errorcount_notify and error_count / total_count > 0.1)) and error_count % errorcount_notify < 3
                         if ((error_count >= errorcount_notify) or (
-                                total_count > errorcount_notify and error_count / total_count > 0.1)) :
+                                total_count > errorcount_notify and error_count / total_count > 0.1)):
                             payload = {"message": "landslide must be retrain"}
                             headers = {'Authorization': 'Bearer ' + os.getenv("line_notify_oneoone"), }
                             r = requests.post('https://notify-api.line.me/api/notify', payload, headers=headers)
@@ -143,8 +143,8 @@ class KerasVersionController(MethodView):
                 if 'id' in jsondata:
                     sver = os.getenv('keras_model_version')
                     id = jsondata['id']
-                    dtoken_record = kerasGlobalInMem.getDevice_token_record()
-                    ver_record = kerasGlobalInMem.getkeras_version_record()
+                    dtoken_record = globalInMem.getDevice_token_record()
+                    ver_record = globalInMem.getVersion_dispatch_record()
                     is_updatefile = True
                     if id in dtoken_record:
                         uver = dtoken_record[id]['modelversion']
@@ -200,7 +200,7 @@ class KerasImageClassifyHandle:
             ext = 'jpg'
 
         degree = image_handle.classify_pHash(image)
-        kerasfilejsondata = kerasGlobalInMem.getkerasfilejsondata()
+        kerasfilejsondata = globalInMem.getkerasfilejsondata()
         isInDataJson = False
 
         for key in kerasfilejsondata:
@@ -236,7 +236,7 @@ class KerasImageClassifyHandle:
 class KerasGetFirebaseTokenController(MethodView):
     def post(self):
         if request.is_json:
-            dtoken_record = kerasGlobalInMem.getDevice_token_record()
+            dtoken_record = globalInMem.getDevice_token_record()
             jsondata = request.get_json()
             if 'id' in jsondata and 'fbtoken' in jsondata:
                 id = jsondata['id']
@@ -251,7 +251,7 @@ class KerasGetFirebaseTokenController(MethodView):
                     dtoken_record[id] = {'id': id, 'modelversion': os.getenv('keras_model_version'), 'fbtoken': fbtoken}
                 if isupdate_file:
                     # TODO firebase post
-                    dtoken_record = firebaseNotefication.handle1(token=fbtoken, id=id)
+                    dtoken_record = firebaseNotefication.handleByArg(token=fbtoken, id=id)
                     dtoken_dumps = json.dumps(dtoken_record, ensure_ascii=False)
                     pathlib.Path(getConfig.getDispatch_device_token()).write_text(dtoken_dumps, encoding="utf-8")
                 return {'status': 200}
@@ -259,10 +259,3 @@ class KerasGetFirebaseTokenController(MethodView):
                 return {'status': 400}
         else:
             return {'status': 400}
-
-
-class EnetClassifyController(MethodView):
-    def post(self):
-        return {}
-    def get(self):
-        return {}

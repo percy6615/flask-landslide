@@ -13,7 +13,7 @@ getConfig = flask_app.getConfig()
 # content
 from .model.global_data import GlobalInMem
 
-kerasGlobalInMem = GlobalInMem()
+globalInMem = GlobalInMem()
 from .tools.firebase_tools import FirebaseNotefication
 
 firebaseNotefication = FirebaseNotefication()

@@ -10,7 +10,7 @@ from ..tools.sync_tool import Singletonclass
 class GlobalInMem():
     def __init__(self):
         self.kerasfilejsondata = self.load(kerasVersion_subFolder + "/data.json")
-        self.keras_version_record = self.load(getConfig.getVersion_dispatch_record())
+        self.version_dispatch_record = self.load(getConfig.getVersion_evn_fileName())
         self.device_token = self.load(getConfig.getDispatch_device_token())
 
     def load(self, filePath):
@@ -19,8 +19,8 @@ class GlobalInMem():
     def getkerasfilejsondata(self):
         return self.kerasfilejsondata
 
-    def getkeras_version_record(self):
-        return self.keras_version_record
+    def getVersion_dispatch_record(self):
+        return self.version_dispatch_record
 
     def getDevice_token_record(self):
         return self.device_token
