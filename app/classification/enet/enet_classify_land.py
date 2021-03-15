@@ -61,11 +61,11 @@ load_dotenv()
 
 class EnetClassifyLandslide(ClassifyInterface, ABC):
     # class EnetClassifyLandslide():
-    def __init__(self, inputModelName=""):
-        super().__init__()
+    def __init__(self, inputModelName=os.getenv('enet_air_model_version')):
+        super().__init__(inputModelName)
         # self.classify_model = self.create_model()
 
-    def create_model(self, modelName=os.getenv('enet_air_model_version')):
+    def create_model(self, modelName):
         obj = json.loads(modelName)
         basedirs = os.path.abspath(os.path.dirname(__file__))
         weight_path = basedirs + '/enet_model/' + obj['model_name']

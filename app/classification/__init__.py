@@ -5,8 +5,8 @@ from PIL import Image
 
 
 class ClassifyInterface(metaclass=ABCMeta):
-    def __init__(self):
-        self.classify_model = self.create_model()
+    def __init__(self, modelName):
+        self.classify_model = self.create_model(modelName)
         if PIL.Image is not None:
             self._PIL_INTERPOLATION_METHODS = {
                 'nearest': PIL.Image.NEAREST,
@@ -23,7 +23,7 @@ class ClassifyInterface(metaclass=ABCMeta):
                 self._PIL_INTERPOLATION_METHODS['lanczos'] = Image.LANCZOS
 
     @abstractmethod
-    def create_model(self):
+    def create_model(self, modelName):
         pass
 
     def defineClassifyIntToStr(self, classnum):

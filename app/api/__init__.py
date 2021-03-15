@@ -1,3 +1,6 @@
+from .landslide_enet_controller import EnetAirUploadImageToClassifyController, \
+    EnetGroundUploadImageToClassifyController, EnetAirUploadImageUrlToClassifyController, \
+    EnetGroundUploadImageUrlToClassifyController, EnetAirVersionController, EnetGroundVersionController
 from .. import flask_app
 
 app = flask_app.getApp()
@@ -27,9 +30,32 @@ app.add_url_rule('/webhooks/posterrorbyperson',
 
 app.add_url_rule('/webhooks/postfcmtoken',
                  view_func=KerasGetFirebaseTokenController.as_view('KerasGetFirebaseTokenController'))
-
+######
 app.add_url_rule('/webhooks/enetairpostimage',
-                 view_func=KerasUploadImageToClassifyController.as_view('KerasUploadImageToClassifyController'))
+                 view_func=EnetAirUploadImageToClassifyController.as_view('EnetAirUploadImageToClassifyController'))
 
 app.add_url_rule('/webhooks/enetgroundpostimage',
-                 view_func=KerasUploadImageToClassifyController.as_view('KerasUploadImageToClassifyController'))
+                 view_func=EnetGroundUploadImageToClassifyController.as_view(
+                     'EnetGroundUploadImageToClassifyController'))
+######
+app.add_url_rule('/webhooks/enetairpostimageurl',
+                 view_func=EnetAirUploadImageUrlToClassifyController.as_view(
+                     'EnetAirUploadImageUrlToClassifyController'))
+
+app.add_url_rule('/webhooks/enetgroundpostimageurl',
+                 view_func=EnetGroundUploadImageUrlToClassifyController.as_view(
+                     'EnetGroundUploadImageUrlToClassifyController'))
+
+#######
+app.add_url_rule('/webhooks/enetairversion',
+                 view_func=EnetAirVersionController.as_view('EnetAirVersionController'))
+
+app.add_url_rule('/webhooks/enetgroundversion',
+                 view_func=EnetGroundVersionController.as_view('EnetGroundVersionController'))
+
+#######
+# app.add_url_rule('/webhooks/enetairposterrorbyperson',
+#                  view_func=KerasClassifyErrorByPersonController.as_view('KerasClassifyErrorByPersonController'))
+#
+# app.add_url_rule('/webhooks/enetgroundposterrorbyperson',
+#                  view_func=KerasClassifyErrorByPersonController.as_view('KerasClassifyErrorByPersonController'))

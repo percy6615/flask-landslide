@@ -23,8 +23,8 @@ load_dotenv()
 
 
 class KerasClassifyLandslide(ClassifyInterface, ABC):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,modelName = os.getenv('keras_model_version')):
+        super().__init__(modelName)
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         config = tf.compat.v1.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -33,7 +33,7 @@ class KerasClassifyLandslide(ClassifyInterface, ABC):
         # self.keras_model = self.create_model()
 
 
-    def create_model(self, modelName=os.getenv('keras_model_version')):
+    def create_model(self, modelName):
         baseModel = xception.Xception(include_top=False, input_shape=(299, 299, 3))
         basedirs = os.path.abspath(os.path.dirname(__file__))
         nn_input = baseModel.input

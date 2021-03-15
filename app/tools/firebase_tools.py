@@ -55,7 +55,7 @@ class FirebaseNotefication:
         return dtoken_record
 
     def postNewModelVersion(self):
-        mver_record = globalInMem.getVersion_dispatch_record()
+        mver_record = globalInMem.getVersion_record()
         sver = os.getenv('keras_model_version')
         if sver not in mver_record:
             mver_record[sver] = {'modelversion': sver, 'time': datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")}

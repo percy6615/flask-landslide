@@ -5,9 +5,13 @@ from ftp.ftplibclientuploadall import FTPClientToDocker
 from .flaskapp import FlaskApp
 
 flask_app = FlaskApp()
-kerasVersion_subFolder = flask_app.getKeras_version_sub_folder()
+keras_subFolder = flask_app.getKeras_sub_folder()
+enet_air_subFolder =flask_app.getEnet_air_sub_folder()
+enet_ground_subFolder =flask_app.getEnet_ground_sub_folder()
 app = flask_app.getApp()
 keras_classify = flask_app.getKerasModel()
+enet_ground_classify = flask_app.getEnetGroundModel()
+enet_Air_classify = flask_app.getEnetAirModel()
 getConfig = flask_app.getConfig()
 
 # content
