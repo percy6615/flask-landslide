@@ -1,6 +1,7 @@
+import json
 from functools import wraps
-from flask import g
 
+from flask import g
 from flask import jsonify
 
 
@@ -21,3 +22,11 @@ def permission_required(permission):
         return decorated_function
 
     return decorator
+
+
+def is_json(myjson):
+    try:
+        json_object = json.loads(myjson)
+    except ValueError as e:
+        return False, None
+    return True, json_object

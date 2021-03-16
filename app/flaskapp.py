@@ -29,7 +29,6 @@ class FlaskApp:
         Moment(self.app)
         PageDown(self.app)
         load_dotenv(override=True)
-        print("inital")
         self.c = config()
         self.keras_classify = KerasClassifyLandslide()
         self.enet_ground_classify = EnetClassifyLandslide(inputModelName=os.getenv('enet_ground_model_version'))

@@ -22,6 +22,3 @@ class Log:
 
     def debug(self, content):
         self.logger.debug(content)
-
-
-logger = Log()

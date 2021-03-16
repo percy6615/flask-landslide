@@ -6,10 +6,14 @@ from datetime import datetime
 import requests
 from flask import request
 
-from app import globalInMem, getConfig, keras_classify, keras_subFolder
+from app import globalInMem, getConfig, keras_classify, keras_subFolder, firebaseNotefication
+from app.tools.decorators_tool import is_json
 
 
 class ClassifyTools:
+    def __init__(self):
+        pass
+
     def UploadImageToClassify(self, handle, modelPath='./app/classification/enet/enet_model/'):
         type = request.values.get("type")
         if type is not None and type == "file":
@@ -102,7 +106,7 @@ class ClassifyTools:
                                 total_count > errorcount_notify and error_count / total_count > 0.1)) and error_count % errorcount_notify < 3
                         if ((error_count >= errorcount_notify) or (
                                 total_count > errorcount_notify and error_count / total_count > 0.1)):
-                            payload = {"message": "landslide must be retrain"}
+                            payload = {"message": "landslide must be retrain " + subFolder}
                             headers = {'Authorization': 'Bearer ' + os.getenv("line_notify_oneoone"), }
                             r = requests.post('https://notify-api.line.me/api/notify', payload, headers=headers)
                             # if check_ping():
@@ -118,3 +122,34 @@ class ClassifyTools:
                 return {'status': 403}, None
         else:
             return {'status': 404}, None
+
+    def getfirebasetoken(self,sver):
+        if type(sver) == str:
+            tf, obj = is_json(sver)
+            if tf:
+                sver = obj['model_name']
+
+        if request.is_json:
+            dtoken_record = globalInMem.getDevice_token_record()
+            jsondata = request.get_json()
+            if 'id' in jsondata and 'fbtoken' in jsondata:
+                id = jsondata['id']
+                fbtoken = jsondata['fbtoken']
+                isupdate_file = True
+                if id in dtoken_record:
+                    if dtoken_record[id]['fbtoken'] != fbtoken:
+                        dtoken_record[id]['fbtoken'] = fbtoken
+                    else:
+                        isupdate_file = False
+                else:
+                    dtoken_record[id] = {'id': id, 'modelversion': sver, 'fbtoken': fbtoken}
+                if isupdate_file:
+                    # TODO firebase post
+                    dtoken_record = firebaseNotefication.handleByArg(token=fbtoken, id=id)
+                    dtoken_dumps = json.dumps(dtoken_record, ensure_ascii=False)
+                    pathlib.Path(getConfig.getDispatch_device_token()).write_text(dtoken_dumps, encoding="utf-8")
+                return {'status': 200}
+            else:
+                return {'status': 400}
+        else:
+            return {'status': 400}
