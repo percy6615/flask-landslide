@@ -3,6 +3,7 @@ import os
 # from urllib import response
 from abc import ABC
 from datetime import datetime
+from functools import lru_cache
 
 from flask import request, send_from_directory
 from flask.views import MethodView
@@ -102,6 +103,7 @@ class GetFirebaseTokenController(MethodView):
         return ClassifyTools().getfirebasetoken(sver)
 
 
+@lru_cache()
 class EnetAirImageClassifyHandle(ImageClassifyHandle, ABC):
     def __init__(self):
         pass
@@ -113,6 +115,7 @@ class EnetAirImageClassifyHandle(ImageClassifyHandle, ABC):
         return prediction
 
 
+@lru_cache()
 class EnetGroundImageClassifyHandle(ImageClassifyHandle, ABC):
     def __init__(self):
         pass
@@ -125,6 +128,7 @@ class EnetGroundImageClassifyHandle(ImageClassifyHandle, ABC):
         return prediction
 
 
+@lru_cache()
 class KerasImageClassifyHandle(ImageClassifyHandle, ABC):
     def __init__(self):
         pass

@@ -3,6 +3,7 @@
 
 import os
 from abc import ABC
+from functools import lru_cache
 from io import BytesIO
 
 import PIL
@@ -21,7 +22,7 @@ from app.classification import ClassifyInterface
 
 load_dotenv()
 
-
+@lru_cache()
 class KerasClassifyLandslide(ClassifyInterface, ABC):
     def __init__(self,modelName = os.getenv('keras_model_version')):
         super().__init__(modelName)

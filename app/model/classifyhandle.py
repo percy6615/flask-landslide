@@ -2,6 +2,7 @@ import json
 import pathlib
 import uuid
 from abc import ABCMeta
+# from functools import lru_cache
 from io import BytesIO
 
 import numpy as np
@@ -9,7 +10,7 @@ from PIL import Image
 
 from app.tools.image_tools import ImageHandle
 
-
+# @lru_cache()
 class ImageClassifyHandle(metaclass=ABCMeta):
     def __init__(self):
         pass

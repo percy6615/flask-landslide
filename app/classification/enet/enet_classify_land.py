@@ -4,6 +4,7 @@
 import json
 import os
 from abc import ABC
+from functools import lru_cache
 from io import BytesIO
 
 import requests
@@ -37,6 +38,7 @@ class EnetClassifyLandslide(ClassifyInterface, ABC):
 
         return model
 
+    # @lru_cache()
     def classify(self, img):
         # # Classify
         self.classify_model.eval()
@@ -44,22 +46,29 @@ class EnetClassifyLandslide(ClassifyInterface, ABC):
             outputs = self.classify_model(img)
             _, predicted = torch.max(outputs.data, 1)
             resultpercentList = []
-            for idx in torch.topk(outputs, k=1).indices.squeeze(0).tolist():
+            sum = 0
+            for idx in torch.topk(outputs, k=5).indices.squeeze(0).tolist():
                 prob = torch.softmax(outputs, dim=1)[0, idx].item()
                 resultpercentList.append(prob)
-        return resultpercentList, predicted.item()
+            for a in resultpercentList:
+                sum = sum + a
+        # return resultpercentList, predicted.item()
+        return [resultpercentList[0]/sum], predicted.item()
 
+    # @lru_cache()
     def classifyimagepath(self, img_path=os.path.join(os.path.dirname(__file__), "../../public/1.jpg")):
         tfms = transforms.Compose([transforms.Resize(224), transforms.ToTensor(),
                                    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]), ])
         img = tfms(self.load_img(Image.open(img_path), target_size=(224, 224))).unsqueeze(0)
         return self.classify(img)
 
+    # @lru_cache()
     def classifyurl(self, url='http://127.0.0.1/webhooks/public/1.png'):
         response = requests.get(url)
         img = Image.open(BytesIO(response.content))
         return self.classifyimagebytes(img)
 
+    # @lru_cache()
     def classifyimagebytes(self, imagebytes):
         tfms = transforms.Compose([transforms.Resize(224), transforms.ToTensor(),
                                    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]), ])

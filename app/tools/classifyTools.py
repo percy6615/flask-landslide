@@ -2,6 +2,7 @@ import json
 import os
 import pathlib
 from datetime import datetime
+from functools import lru_cache
 
 import requests
 from flask import request
@@ -14,17 +15,21 @@ class ClassifyTools:
     def __init__(self):
         pass
 
+    # @lru_cache
     def UploadImageToClassify(self, handle, modelPath='./app/classification/enet/enet_model/'):
         type = request.values.get("type")
+        if type is None:
+            type = "file"
         if type is not None and type == "file":
-            file = request.files['filedata']
+            file = request.files['file']
             filedata = file.read()
             return handle.handle(filedata, None, file.filename)
         elif type is not None and type == "model":
-            model = request.files['filedata']
+            model = request.files['file']
             model.save(modelPath + model.filename)
             return {"status": 200}
 
+    # @lru_cache
     def UploadImageUrlToClassify(self, handle):
         if request.is_json:
             jsondata = request.get_json()
@@ -38,6 +43,7 @@ class ClassifyTools:
         else:
             return {'status': 400}
 
+    # @lru_cache
     def verion(self, sver):
         try:
             if request.is_json:
@@ -76,6 +82,7 @@ class ClassifyTools:
             # Not valid information, bail out and return an error
             return {'error': 400}
 
+    # @lru_cache
     def errorByPerson(self, classify_model=keras_classify, subFolder=keras_subFolder,
                       filejsondata=globalInMem.getKerasfilejsondata()):
         if request.is_json:
@@ -123,6 +130,7 @@ class ClassifyTools:
         else:
             return {'status': 404}, None
 
+    # @lru_cache
     def getfirebasetoken(self,sver):
         if type(sver) == str:
             tf, obj = is_json(sver)
