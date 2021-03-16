@@ -2,6 +2,7 @@
 import os
 # from urllib import response
 from abc import ABC
+from datetime import datetime
 
 from flask import request, send_from_directory
 from flask.views import MethodView
@@ -51,17 +52,6 @@ class ActionServiceController(MethodView):
         return {"status": 200}
 
 
-class KerasImageClassifyHandle(ImageClassifyHandle, ABC):
-    def __init__(self):
-        pass
-
-    def handle(self, content, url, urlfilename):
-        prediction, jsonfiledata = super().handle(content, url, urlfilename, keras_classify, keras_subFolder,
-                                                  globalInMem.getKerasfilejsondata())
-        globalInMem.setKerasfilejsondata(jsonfiledata)
-        return prediction
-
-
 class UploadImageToClassifyController(MethodView):
     def post(self, classifyHandle, modelPath):
         return ClassifyTools().UploadImageToClassify(handle=classifyHandle,
@@ -70,6 +60,8 @@ class UploadImageToClassifyController(MethodView):
 
 class UploadImageUrlToClassifyController(MethodView):
     def post(self, classifyHandle):
+        now = datetime.now()
+        print("now =", now)
         return ClassifyTools().UploadImageUrlToClassify(handle=classifyHandle)
 
 
@@ -130,4 +122,15 @@ class EnetGroundImageClassifyHandle(ImageClassifyHandle, ABC):
                                                   enet_ground_subFolder,
                                                   globalInMem.getEnetGroundfilejsondata())
         globalInMem.setEnetGroundfilejsondata(jsonfiledata)
+        return prediction
+
+
+class KerasImageClassifyHandle(ImageClassifyHandle, ABC):
+    def __init__(self):
+        pass
+
+    def handle(self, content, url, urlfilename):
+        prediction, jsonfiledata = super().handle(content, url, urlfilename, keras_classify, keras_subFolder,
+                                                  globalInMem.getKerasfilejsondata())
+        globalInMem.setKerasfilejsondata(jsonfiledata)
         return prediction

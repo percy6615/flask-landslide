@@ -28,29 +28,29 @@ class ClassifyInterface(metaclass=ABCMeta):
 
     def defineClassifyIntToStr(self, classnum):
         if classnum == 0:
-            classstr = '上邊坡'
+            classstr = '上邊坡土石坍方'
         elif classnum == 1:
-            classstr = '下邊坡'
+            classstr = '下邊坡土石坍方'
         elif classnum == 2:
-            classstr = '大面積'
+            classstr = '大面積土石坍方'
         elif classnum == 3:
-            classstr = '無法辨識'
+            classstr = '無法辨識影像'
         elif classnum == 4:
-            classstr = '無災情'
+            classstr = '輕微或無災情'
         else:
             classstr = '無'
         return classstr.encode('utf8').decode('utf8').replace("'", '"')
 
     def defineClassifyStrToInt(self, classstr):
-        if classstr == '上邊坡':
+        if classstr == '上邊坡土石坍方':
             classnum = 0
-        elif classstr == '下邊坡':
+        elif classstr == '下邊坡土石坍方':
             classnum = 1
-        elif classstr == '大面積':
+        elif classstr == '大面積土石坍方':
             classnum = 2
-        elif classstr == '無法辨識':
+        elif classstr == '無法辨識影像':
             classnum = 3
-        elif classstr == '無災情':
+        elif classstr == '輕微或無災情':
             classnum = 4
         else:
             classnum = -1
