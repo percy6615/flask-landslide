@@ -67,12 +67,13 @@ class UploadImageUrlToClassifyController(MethodView):
 
 
 class ClassifyErrorByPersonController(MethodView):
-    def post(self, classify_model, subFolder, jsondata):
+    def post(self, classify_model, subFolder, jsondata,modelName):
         responsestr, filejsondata = ClassifyTools().errorByPerson(classify_model=classify_model,
                                                                   subFolder=subFolder,
                                                                   filejsondata=jsondata)
         if filejsondata is not None:
-            globalInMem.setKerasfilejsondata(filejsondata)
+            # globalInMem.setKerasfilejsondata(filejsondata)
+            globalInMem.setfilejsondata( modelName, filejsondata)
         return responsestr
 
 
@@ -103,11 +104,12 @@ class GetFirebaseTokenController(MethodView):
         return ClassifyTools().getfirebasetoken(sver)
 
 
-@lru_cache()
+
 class EnetAirImageClassifyHandle(ImageClassifyHandle, ABC):
     def __init__(self):
         pass
 
+    @lru_cache()
     def handle(self, content, url, urlfilename):
         prediction, jsonfiledata = super().handle(content, url, urlfilename, enet_air_classify, enet_air_subFolder,
                                                   globalInMem.getEnetAirfilejsondata())
@@ -115,11 +117,12 @@ class EnetAirImageClassifyHandle(ImageClassifyHandle, ABC):
         return prediction
 
 
-@lru_cache()
+
 class EnetGroundImageClassifyHandle(ImageClassifyHandle, ABC):
     def __init__(self):
         pass
 
+    @lru_cache()
     def handle(self, content, url, urlfilename):
         prediction, jsonfiledata = super().handle(content, url, urlfilename, enet_ground_classify,
                                                   enet_ground_subFolder,
@@ -128,11 +131,12 @@ class EnetGroundImageClassifyHandle(ImageClassifyHandle, ABC):
         return prediction
 
 
-@lru_cache()
+
 class KerasImageClassifyHandle(ImageClassifyHandle, ABC):
     def __init__(self):
         pass
 
+    @lru_cache()
     def handle(self, content, url, urlfilename):
         prediction, jsonfiledata = super().handle(content, url, urlfilename, keras_classify, keras_subFolder,
                                                   globalInMem.getKerasfilejsondata())

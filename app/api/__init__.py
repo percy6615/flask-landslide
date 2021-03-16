@@ -33,7 +33,7 @@ app.add_url_rule('/webhooks/kerasversion',
 app.add_url_rule('/webhooks/posterrorbyperson',
                  view_func=ClassifyErrorByPersonController.as_view('KerasClassifyErrorByPersonController'),
                  defaults={'classify_model': keras_classify, 'subFolder': keras_subFolder,
-                           'jsondata': globalInMem.getKerasfilejsondata()})
+                           'jsondata': globalInMem.getKerasfilejsondata(), 'modelName': 'keras'})
 
 app.add_url_rule('/webhooks/postfcmtoken',
                  view_func=GetFirebaseTokenController.as_view('KerasGetFirebaseTokenController'),
@@ -73,13 +73,13 @@ app.add_url_rule('/webhooks/enetgroundversion',
 app.add_url_rule('/webhooks/enetairposterrorbyperson',
                  view_func=ClassifyErrorByPersonController.as_view('EnetAirClassifyErrorByPersonController'),
                  defaults={'classify_model': enet_air_classify, 'subFolder': enet_air_subFolder,
-                           'jsondata': globalInMem.getEnetAirfilejsondata()})
+                           'jsondata': globalInMem.getEnetAirfilejsondata(), 'modelName': 'enetair'})
 
 app.add_url_rule('/webhooks/enetgroundposterrorbyperson',
                  view_func=ClassifyErrorByPersonController.as_view(
                      'EnetGroundClassifyErrorByPersonController'),
                  defaults={'classify_model': enet_ground_classify, 'subFolder': enet_ground_subFolder,
-                           'jsondata': globalInMem.getEnetGroundfilejsondata()})
+                           'jsondata': globalInMem.getEnetGroundfilejsondata(), 'modelName': 'enetground'})
 #######
 app.add_url_rule('/webhooks/enetairpostfcmtoken',
                  view_func=GetFirebaseTokenController.as_view('EnetAirGetFirebaseTokenController'),

@@ -25,13 +25,14 @@ class EnetClassifyLandslide(ClassifyInterface, ABC):
         super().__init__(inputModelName)
         # self.classify_model = self.create_model()
 
+
     def create_model(self, modelName):
         obj = json.loads(modelName)
         basedirs = os.path.abspath(os.path.dirname(__file__))
         weight_path = basedirs + '/enet_model/' + obj['model_name']
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         model = EfficientNet.from_name(model_name=obj['network_name'])
-        model._fc.out_features = 5
+        model._fc.out_features = self.classify_num
         model.to(device)
         model.load_state_dict(torch.load(weight_path, map_location=torch.device('cpu')))
         model = model.to(device)
@@ -47,7 +48,7 @@ class EnetClassifyLandslide(ClassifyInterface, ABC):
             _, predicted = torch.max(outputs.data, 1)
             resultpercentList = []
             sum = 0
-            for idx in torch.topk(outputs, k=5).indices.squeeze(0).tolist():
+            for idx in torch.topk(outputs, k=self.classify_num).indices.squeeze(0).tolist():
                 prob = torch.softmax(outputs, dim=1)[0, idx].item()
                 resultpercentList.append(prob)
             for a in resultpercentList:

@@ -6,6 +6,7 @@ from PIL import Image
 
 class ClassifyInterface(metaclass=ABCMeta):
     def __init__(self, modelName):
+        self.classify_num = 5
         self.classify_model = self.create_model(modelName)
         if PIL.Image is not None:
             self._PIL_INTERPOLATION_METHODS = {
