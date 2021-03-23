@@ -1,7 +1,7 @@
 import os
 
 from .. import flask_app, keras_classify, keras_subFolder, globalInMem, enet_air_subFolder, enet_air_classify, \
-    enet_ground_classify, enet_ground_subFolder
+    enet_ground_subFolder, enet_ground_classify
 
 app = flask_app.getApp()
 routerCache = flask_app.getCache()

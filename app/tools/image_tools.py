@@ -52,7 +52,9 @@ class ImageHandle():
                 break
         if image is not None and image._getexif() is not None:
             exif = dict(image._getexif().items())
-            if exif[orientation] == 3:
+            if orientation not in exif:
+                pass
+            elif exif[orientation] == 3:
                 image = image.rotate(180, expand=True)
             elif exif[orientation] == 6:
                 image = image.rotate(270, expand=True)

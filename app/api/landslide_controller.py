@@ -9,7 +9,7 @@ from flask import request, send_from_directory
 from flask.views import MethodView
 
 from app import keras_classify, keras_subFolder, globalInMem, ftpclient, \
-    enet_ground_classify, enet_ground_subFolder, enet_air_classify, enet_air_subFolder
+    enet_ground_subFolder, enet_air_classify, enet_air_subFolder, enet_ground_classify
 from app.model.classifyhandle import ImageClassifyHandle
 from app.tools.classifyTools import ClassifyTools
 # dotenv_file = dotenv.find_dotenv()

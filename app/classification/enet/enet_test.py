@@ -7,7 +7,7 @@ from efficientnet_pytorch import EfficientNet
 from torchvision import transforms
 
 basedirs = os.path.abspath(os.path.dirname(__file__))
-weight_path = basedirs + '/enet_model/' + 'net_001.pth'
+weight_path = basedirs + '/enet_model/' + 'landslide_air_v0323.pth'
 device = torch.device("cpu")
 
 # model = EfficientNet.from_name(model_name='efficientnet-b3')
@@ -25,7 +25,7 @@ model = model.to(device)
 # Preprocess image
 tfms = transforms.Compose([transforms.Resize(224), transforms.ToTensor(),
                            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]), ])
-img = tfms(Image.open('../../public/124.jpg')).unsqueeze(0)
+img = tfms(Image.open('../../public/1212.jpg')).unsqueeze(0)
 print(img.shape)  # torch.Size([1, 3, 224, 224])
 
 
